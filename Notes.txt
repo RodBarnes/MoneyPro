@@ -1,0 +1,147 @@
+Current Focus
+-------------
+I am looking at settings and trying to decide whether to modify how this is being done.  Currently, they are all saved and managed from the .exe.config.
+But maybe there should be user interface?  This mainly came up because the settings require a default -- which is being provided -- but can be wrong.
+For example, the BackupPath default was to a drive that no longer exists on the new Brawn.  So, this made it clear that the user needs to provide this default.
+But how should that be obtained?  And are there other settings that should also be user-supplied?
+
+All of the settings have to have a default value to work.  Some of these can just be hardcoded but some should require the user to set them up since
+	they could change based upon the user's system.
+    - "ContentPath" value="E:\Source\BitBucket\MoneyPro\WPF\bin\Debug\" />  This is used as the default location from where to export and import files.
+    - "BackupPath" value="K:\Temp" /> This is the default path where backups will be written and read.
+    - "BackupCount" value="3" /> This is the number of backups to keep, rotating off the older backups as a new backup is made.
+    - "DatabasePath" value="C:\Users\rodba\AppData\Local\Microsoft\VisualStudio\SSDT" />  This is the location of the MDF being used.
+    - "DatabaseName" value="MoneyPro_Primary" />  This is the name of the database?
+    - "WindowHeight" value="600" />  This is the default height of the window upon opening.
+    - "WindowWidth" value="975" />  This is the default width of the window upon opening.
+
+Should there be a user-level dialog for managing the settings?  The Settings class in Common implements IList<Setting> where each Setting is a name/value pair.
+- This is flexible but how might this be used to display the list of settings for user editing?
+- Should all settings be editable by the user?  If not, why not?
+
+
+
+THESE MAY BE KNOWN BUT NOTICED DURING RECENT IMPORT AFTER GETTING THIS ALL WORKING AGAIN
+----------------------------------------------------------------------------------------
+The Import Dialog seems odd.  Generally, the user has to select when importing and some fields are not editable until after selecting.
+Yet, I think, this same dialog is used for adding a new account so maybe that is why the order is the way it is?
+
+The	summary line (displayed at the top of the register) has 0 transactions and $0 balance for all imported accounts.
+
+I think the who naming of backuppath, filepath, databasepath, and databasename needs to be revisited, architecturally.  It seems clunky at this point.
+- For example, if an old backuppath is present in settings, it will bomb.  It should be checking that setting before acting upon it each time.
+- Should the app, upon first being run, prompt the user with a settings dialog to capture the initial settings?  Or, capture them as and when needed?
+
+I need a script that can be run to clear out all processes for VS 2022 and Sql Server after running into issues.
+Plus, just this last time, I saw a bunch of MS Edge processes sitting there from something.  From VS2022?  Or...?  I killed them, but...
+
+
+Database
+--------
+Database is under the "ProjectModels" server and named "Database".
+The MDF is located under "C:\Users\rodba\AppData\Local\Microsoft\VisualStudio\SSDT\MoneyPro".
+
+In previous versions of LocalDB, there was a ProjectsVnn server where the Vnn is the version of the database; e.g., ProjectsV13 for SQL Server 2016.
+As of VS2022, LocalDB is now all under ProjectModels and it defaults to SQL Server 2019 (version 15).
+
+I had forgotten that publishing the database runs the build.sql script which creates all the database objects.  After running that, it seems availbale.
+
+I had to change the DB_LOCATION to "ProjectModels" and the "InitialCatalog" to "Database".  But it now fires up.
+
+Need to change this so the database is located under %APPDATA%\Advanced Applications when it is in release.
+
+
+Export from MS Money
+--------------------
+Notes on the Export:
+* Closed accounts cannot be exported and must be marked as open before able to export.
+* Each account is exported into its own QIF file.
+* The file will contain only: a) the name of the account, b) the type of account, and c) the individual entries.
+* The name of the institution, account number, and other details are not exported.
+
+1. Select "Loose QIF"
+2. Give it the filename same as the account; e.g., "Checking_US_Bank"
+3. Select the account type.
+4. Select the account
+
+Notes on the Import:
+* The relateive sections of each imported account entry are added to the global category, subscategory, payee, class, and subclass list.
+* Entered insitution names are added to the global institution list.
+
+
+Scheduled transactions
+---------------------
+- Need to implement "Enter" for Schedule Transaction.
+- Fully test all features of ScheduleTransaction.
+- In Schedule View, clicking [Subs] doesn't display the subs first time; only on second and subsequent time.  NotifyProperty*?  Well, sometimes....
+- Changing amount in sub sched doesn't update sched when creating new sched.
+
+
+TO DO or Known Issues
+---------------------
+MS Money uses a pop-up window with list of accounts to handle the Copy/Cut/Paste transaction function.
+MS Money doesn't support copy/cut/paste of subtransactions.  Not sure what else to do with this.
+
+Need to modify BankDataGrid to behave the same as the ScheDataGrid with regard to new items; i.e., using DataGrid.CommitEdit(DataGridEditingUnit.Row, true) instead of the lastTransaction mechanism based upon the SubtransactionUpdated Event.
+
+Ability to delete multiple lookups -- particularly payees?
+Rename lookup -- does it rename all existing records?  Should it prompt whether to do so?
+
+System.Windows.Data Error: 4 but only when trying to jump to transfer but doesn't happen from USAA or Amazon.  Only with others; e.g., US Bank, PenFed, Barclays.
+Should confirm adding subtransactions to C/R transaction
+Maintenance shouldn't allow deleting defaults in lookups; e.g., Category or Payee
+Maintenance shouldn't allow putting a value in the DateLastUsed of default Payees
+Deleting a lookup removes the lookup and all references from the database but doesn't remove the value from any already-read records.  However, upon the next refresh, it will clear out the values.
+Can [Enter] be captured in the transaction grid (much like [Del] is captured in Maintenance grids) and it be used to open/close the subtransaction grid?  It is possible it might even be able to open the subtransaction grid and then continue with the default behavior (base.OnKeyDown(sender, args) and have it force the update of the transaction and not have to do all the work to save the transction in lastTransaction.
+Updating a lookup value in maintenance updates all transactions/subtransactions in the currently selected account.  But other accounts are not updated.  However, during DB read all values will be correctly displayed.
+Add validation rule to transaction date to handle manual entry
+Validate entries in phone, state, and zip for Institution
+Create Institution maintenance panel
+It is possible (though unusual) to have more than one transfer sub in the same transaction.  If that transaction is deleted, it needs to delete all transfers.  How does this work with regard to ensuring the delete of the transfer is only driven from one side; i.e., using deleteTransferInProgress flag?
+Can Busy Panel become a component that does it all?  Pass in the info and references to functions, and it does all the work, returning when complete?
+Can any of the work done in Worker_ImportAccountRunWorkerCompleted be moved into Worker_ImportAccountDoWork?
+
+Change background of row to other color when the date is future; i.e., transaction has not yet been applied.
+
+
+Performance considerations
+----------------------------
+Read only transactions needed for view.  Read each next page of transactions only as the datagrid scrolls.
+
+
+Version 2 -- For after it is in regular use.  Features already working but maybe need revisited
+-----------------------------------------------------------------------------------------------
+BusyPanel is no longer displaying, at least not consistently.  This happened after the architectural change to have VMs for all models being displayed.
+I think the converters should be used to provide the string values based upon true value in the source; i.e., true converts to "True", Visibility.Visible converts to "Visible", etc.
+Change statuEnum to use Enumeration MarkupExtension
+Add settings panel for user to update values; still store them in config
+WaitCursor() doesn't seem to be working.  Doesn't appear during the search despite using it.  Am I using it wrong?
+CollectionViewSource.GetDefaultView(ObservableCollection<>) -- not sure why I put this note?
+Add reporting ability
+Read QXF from bank and reconcile transactions
+Prompt for input if ticker/security not found
+Replace ObservableCollection<T> with custon class where additional methods are required; e.g., ScheduleTransactions.Total, etc.
+Move validation message from validatoin field in subtrans to tooltip.
+
+
+Issues/Questions
+----------------
+Assign institution while creating account -- required?
+I've concluded that there is no way to reliably merge in the archives because data can change between an archive; e.g., a reconciliation changes the date, the user changes a memo, or a payee, etc.  Of course, a given transaction can live on in later archives if it is tied to other accounts which were not archived also.  There is no way to ensure that a transaction in the archive matches a transaction in the current data.  The only thing that can be done is to backup the current database, clear it and load in the archives for a given period, then backup those up as a separate database and rename it so it can be opened for historical purposes.
+
+
+Finished
+--------
+Auto-resolve transfer categories during import
+Adding new payee from datagrid
+Selecting by edit of lookups
+Backup/Restore is working though doesn't create compressed archive
+Transfer resolution is working, automatically applied after import of account.  It uses a brute-force, directly in the database approach which requires reloading all the accounts.  However, since this only occurs following an import, and imports are going to be few and non-existent once the user gets everything in place, it seems pointless to try to improve the elegance of this.  There is no question that the direct-in-database approach is the simplest and most efficient way to accomplish this as opposed to resolving transfers in code and having to apply them to the database one at a time.
+ToCSV
+AccountType & Institution operations
+Category/Subcategory/Class/Subclass operations
+Add/delete transaction, add/delete subtransactions
+Transfers
+Copy/Cut/Paste transaction
+Copy/Cut/Paste subtransaction same account
+CopyCut/Paste subtransaction different account

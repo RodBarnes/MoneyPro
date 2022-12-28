@@ -1,0 +1,6 @@
+﻿CREATE TABLE [dbo].[Budget]
+(
+	[BudgetId] INT NOT NULL PRIMARY KEY IDENTITY, 
+    [Name] NVARCHAR(50) NOT NULL, 
+    [Amount] MONEY NOT NULL
+)

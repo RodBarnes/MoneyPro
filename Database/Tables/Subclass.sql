@@ -1,0 +1,5 @@
+﻿CREATE TABLE [dbo].[Subclass]
+(
+	[SubclassId] INT NOT NULL PRIMARY KEY IDENTITY,
+    [Text] NVARCHAR(50) NOT NULL
+)

@@ -1,0 +1,46 @@
+﻿@page "/accounts"
+
+@using MoneyPro.Services
+@inject AccountService AccountService
+
+<h3>Accounts</h3>
+
+@if (list == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Reference</th>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Institution</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var account in list)
+            {
+                <tr>
+                    <td>@account.Id</td>
+                    <td>@account.Reference</td>
+                    <td>@account.Name</td>
+                    <td>@account.Type</td>
+                    <td>@account.Institution</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    Data.Account[] list;
+
+    protected override async Task OnInitializedAsync()
+    {
+        list = await AccountService.GetAccountAsync();
+    }
+}

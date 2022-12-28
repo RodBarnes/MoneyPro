@@ -1,0 +1,60 @@
+﻿<DataGrid x:Name="InvDataGrid" Grid.Row="2"
+                Visibility="{Binding InvDataGridVisibility}"
+                ItemsSource="{Binding SelectedAccount.Transactions}" 
+                SelectedItem="{Binding SelectedAccount.SelectedTransaction}"
+                RowDetailsVisibilityMode="Collapsed"
+                CanUserSortColumns="True"
+                CanUserAddRows="True"
+                CanUserDeleteRows="True"
+                CanUserReorderColumns="False"
+                CanUserResizeRows="False"
+                RowHeaderWidth ="0"
+                AutoGenerateColumns="False"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                Margin="5"
+                RowBackground="AliceBlue">
+    <DataGrid.Columns>
+        <DataGridTemplateColumn x:Name="InvTransDate" Header="Date" Width="100" SortMemberPath="Date" >
+            <DataGridTemplateColumn.CellTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Date, StringFormat=\{0:MM/dd/yyyy\}}" />
+                </DataTemplate>
+            </DataGridTemplateColumn.CellTemplate>
+            <DataGridTemplateColumn.CellEditingTemplate>
+                <DataTemplate>
+                    <DatePicker SelectedDate="{Binding Date}" />
+                </DataTemplate>
+            </DataGridTemplateColumn.CellEditingTemplate>
+        </DataGridTemplateColumn>
+
+        <DataGridTextColumn x:Name="InvTransDesc" Header="Description" 
+                                        Binding="{Binding Description}" />
+
+        <DataGridTextColumn x:Name="InvTransMemo" Header="Memo" 
+                                        Binding="{Binding Memo}" />
+
+        <DataGridComboBoxColumn x:Name="InvTransStatus" Header="?" Width="18" 
+                                            ItemsSource="{Binding Source={StaticResource EnumTransactionStatus}, Mode=OneWay}" 
+                                            SelectedItemBinding="{Binding Status}" />
+
+        <DataGridTextColumn x:Name="InvTransAction" Header="Action" 
+                                        Binding="{Binding Action}" />
+
+        <DataGridTextColumn x:Name="InvTransSecurity" Header="Security" 
+                                        Binding="{Binding Security}" />
+
+        <DataGridTextColumn x:Name="InvTransPrice" Header="Price" 
+                                        Binding="{Binding Price, StringFormat=\{0:C\}}" />
+
+        <DataGridTextColumn x:Name="InvTransQty" Header="Qty" 
+                                        Binding="{Binding Quantity, StringFormat=\{0.0000\}}" />
+
+        <DataGridTextColumn x:Name="InvTransComm" Header="Comm" 
+                                        Binding="{Binding Commission, StringFormat=\{0:C\}}" />
+
+        <DataGridTextColumn x:Name="InvTransXfer" Header="Transfer" 
+                                        Binding="{Binding TransferAmount, StringFormat=\{0:C\}}" />
+    </DataGrid.Columns>
+</DataGrid>
+

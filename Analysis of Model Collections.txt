@@ -1,0 +1,62 @@
+Analysis of how model collections are used
+------------------------------------------
+
+Account model BankTransaction collection is never used except:
+1) During import
+2) When reading collections from DB
+3) Looping through them to create the VM collection
+
+>> Using DI to pass in the ObservableCollection to the DB won't work because each BankTransactionVM in the collection needs to have events set -- PropertyChanged, TransferCreated, and TransferDeleted -- which can only be done within the AccountVM
+
+
+BankTransaction model Subtransaction collection is never used except:
+1) During import
+2) When doing a deep clone (not sure this is ever really used)
+3) Looping through them to create the VM collection
+
+>> Using DI to pass in the ObservableCollection to the DB won't work because each SubtransactionVM in the collection needs to have events set -- PropertyChanged, TransferCreated, and TransferDeleted -- which can only be done within the BankTransactionVM
+
+
+
+Analysis of consumption of model collections
+--------------------------------------------
+
+AccountsRead populates DI IList<Account>
+	MainVM loops through to create AccountList -- ObservableCollection<AccountVM>
+	SubtransactionVM fills XferAccounts -- ObservableCollection<Account>()
+
+AccountTypesRead populates DI ObservableCollection<AccountType>
+	AccountVM sets AccountTypes -- ObservableCollection<AccountType>
+
+BankTransactionsRead populates DI Account.Transactions
+	AccountVM loops through to create AccountVM.Transactions -- ObservableCollection<BankTransactionVM>()
+
+InvTransactionsRead populates DI Account.Transactions
+	AccountVM loops through to create AccountVM.Transactions -- ObservableCollection<BankTransactionVM>()
+
+SubtransactionsRead populates DI BankTransaction.Subtransactions
+	BankTransactionVM loops through to create BankTransactionVM.Subtransactions -- ObservableCollection<SubtransactionVM>()
+
+InstitutionsRead populates DI ObservableCollection<Institution>
+	AccountVM sets Institutions -- ObservableCollection<Institution>
+
+ReferencesRead populates DI ObservableCollection<Reference>
+	MainVM.SearchPanel sets References -- ObservableCollection<Reference>
+
+PayeesRead populates DI ObservableCollection<Payee>
+	BankTransactionVM sets Payees -- ObservableCollection<Payee>
+
+CategoriesRead populates DI ObservableCollection<Category>
+	SubtransactionVM sets Categories -- ObservableCollection<Category>
+
+SubcategoriesRead populates DI ObservableCollection<Subcategory>
+	SubtransactionVM sets Subcategories -- ObservableCollection<Subcategory>
+
+ClassesRead populates DI ObservableCollection<Class>
+	SubtransactionVM sets Classes -- ObservableCollection<Class>
+
+SubclassesRead populates DI ObservableCollection<Subclass>
+	SubtransactionVM sets Subclasses -- ObservableCollection<Subclass>
+
+SearchTransactions returns a List<SearchItem>
+	 MainVM.SearchPanel fills SearchItems -- ObservableCollection<SearchItem>()

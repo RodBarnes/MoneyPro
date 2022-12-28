@@ -1,0 +1,40 @@
+﻿@page "/Institutions"
+
+@using MoneyPro.Services
+@inject InstitutionService InstitutionService
+
+<h3>Institutions</h3>
+
+@if (list == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Phone</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var payee in list)
+            {
+                <tr>
+                    <td>@payee.Name</td>
+                    <td>@payee.Phone</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    Data.Institution[] list;
+
+    protected override async Task OnInitializedAsync()
+    {
+        list = await InstitutionService.GetInstitutionAsync();
+    }
+}

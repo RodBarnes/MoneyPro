@@ -1,0 +1,48 @@
+﻿@page "/budgets"
+
+@using MoneyPro.Services
+@inject BudgetService BudgetService
+
+<h3>Budgets</h3>
+
+@if (list == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Last used</th>
+                <th>Limit</th>
+                <th>PerYear</th>
+                <th>Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var budget in list)
+            {
+                <tr>
+                    <td>@budget.Id</td>
+                    <td>@budget.Name</td>
+                    <td>@budget.DateLastUsed.ToShortDateString()</td>
+                    <td>@budget.Limit</td>
+                    <td>@budget.PerYear</td>
+                    <td>@budget.ReferenceCount</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    Data.Budget[] list;
+
+    protected override async Task OnInitializedAsync()
+    {
+        list = await BudgetService.GetBudgetAsync();
+    }
+}

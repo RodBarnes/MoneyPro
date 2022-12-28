@@ -1,0 +1,20 @@
+When do subtransactions get persisted to DB?
+
+By default, it is a question of when the subtransactions are added to the collection.  If CollectionChanged is set BEFORE adding them, they will all get persisted; example is ImportAccount or TransactionsMerge.  If the CollectionChanged is set AFTER adding them, none will get persisted unless it is done manually after the fact; example is ReadSubtransactions() or BankTransactionVM.Clone()
+
+
+Copy/Paste - Transaction and each subtransaction are manually inserted -- transaction upon the Transactions.Add() and each Subtransction by looping through.  This is because the AccountId and TransctionId, respectively, must be updated as part of the process.  The transaction is cloned from an exising transaction (along with its subtransactions) so these new ones are not in the DB until they get pasted in.
+
+Transfer_Created - Transaction and each subtransaction are automatically inserted as they are added to the respective collecitons.  This is because both are created from the new() constructor of each, respectively, and the CollectionChanged event handler is set in the constructor.
+
+Subtransaction_Update - Transaction and each subtransaction are automatically inserted when SelectedAccount changes and the transaction is added to the account.  This because the transaction is cloned from an existing transaction (along with its subtransactions) and the CollectionChanged event handler is already set on each and all.
+
+Import account -- Transaction is automatically inserted as the transaction is added to the account.  Subtransactions are inserted during a loop when added to the the Subtransactions collection.
+
+ReadTransactions - By design, these are all added with no insert (since they're just now being read) because the CollectionChanged event handler isn't set until the items have been read in.
+
+ReadSubtransactions - By design, these are all added with no insert (since they're just now being read) because the CollectionChanged event handler isn't set until the items have been read in.
+
+TransactionsMerge - Transaction and Subtransactions are automatically inserted during the respective Add() because CollectionChanged event handler is set in constructor before any items are added to collection.
+
+AccountVM.Clone() - Transaction are not inserted because CollectionChanged event handler is not set until after the collection has been filled.

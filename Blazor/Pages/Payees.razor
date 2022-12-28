@@ -1,0 +1,44 @@
+﻿@page "/payees"
+
+@using MoneyPro.Services
+@inject PayeeService PayeeService
+
+<h3>Payees</h3>
+
+@if (list == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Last used</th>
+                <th>Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var payee in list)
+            {
+            <tr>
+                <td>@payee.Id</td>
+                <td>@payee.Name</td>
+                <td>@payee.DateLastUsed.ToShortDateString()</td>
+                <td>@payee.ReferenceCount</td>
+            </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    Data.Payee[] list;
+
+    protected override async Task OnInitializedAsync()
+    {
+        list = await PayeeService.GetPayeeAsync();
+    }
+}

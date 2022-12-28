@@ -1,0 +1,235 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C1DAC36A-8D5E-4A50-BA54-155987FC6332}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>MoneyPro</RootNamespace>
+    <AssemblyName>MoneyPro</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <WarningLevel>4</WarningLevel>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Deterministic>true</Deterministic>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <TargetFrameworkProfile />
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Images\financial-icon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System">
+      <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\System.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.SqlClient, Version=4.6.1.4, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Data.SqlClient.4.8.4\lib\net461\System.Data.SqlClient.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xaml">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="WindowsBase" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Compile Include="Converters\BoolToTrueFalseConverter.cs" />
+    <Compile Include="Converters\BoolToVisibilityConverter.cs" />
+    <Compile Include="Converters\StringToNumberConverter.cs" />
+    <Compile Include="Converters\SubtransactionConverter.cs" />
+    <Compile Include="Converters\TransactionConverter.cs" />
+    <Compile Include="Converters\NullToDateConverter.cs" />
+    <Compile Include="Converters\NullToStringConverter.cs" />
+    <Compile Include="DatabaseConnection.cs" />
+    <Compile Include="DatabaseManager.cs" />
+    <Compile Include="ImportManager.cs" />
+    <Compile Include="Models\Account.cs" />
+    <Compile Include="Models\Main.cs" />
+    <Compile Include="Models\AccountTypes.cs" />
+    <Compile Include="Models\BankTransaction.cs" />
+    <Compile Include="Models\BankTransactionImport.cs" />
+    <Compile Include="Models\Category.cs" />
+    <Compile Include="Models\Class.cs" />
+    <Compile Include="Models\InvTransactionImport.cs" />
+    <Compile Include="Models\Institution.cs" />
+    <Compile Include="Models\Investment.cs" />
+    <Compile Include="Models\Investments.cs" />
+    <Compile Include="Models\InvTransaction.cs" />
+    <Compile Include="Models\Payee.cs" />
+    <Compile Include="Models\Reference.cs" />
+    <Compile Include="Models\ScheduleRule.cs" />
+    <Compile Include="Models\ScheduleSubtransaction.cs" />
+    <Compile Include="Validation\ScheduleTransactionValidation.cs" />
+    <Compile Include="Validation\ScheduleSubtransactionValidation.cs" />
+    <Compile Include="ViewModels\ScheduleTransactionVM.cs" />
+    <Compile Include="Models\ScheduleTransaction.cs" />
+    <Compile Include="Models\SearchItem.cs" />
+    <Compile Include="Models\SearchQuery.cs" />
+    <Compile Include="Models\Subcategory.cs" />
+    <Compile Include="Models\Subclass.cs" />
+    <Compile Include="Models\Subtransaction.cs" />
+    <Compile Include="Events\TransferDeletedEvent.cs" />
+    <Compile Include="Events\TransferCreatedEvent.cs" />
+    <Compile Include="Validation\BankTransactionValidation.cs" />
+    <Compile Include="Validation\PayeeValidation.cs" />
+    <Compile Include="Validation\InstitutionValidation.cs" />
+    <Compile Include="Validation\SubtransactionValidation.cs" />
+    <Compile Include="Validation\SubclassValidation.cs" />
+    <Compile Include="Validation\ClassValidation.cs" />
+    <Compile Include="Validation\SubcategoryValidation.cs" />
+    <Compile Include="Validation\CategoryValidation.cs" />
+    <Compile Include="ViewModels\AccountVM.cs" />
+    <Compile Include="ViewModels\BankTransactionVM.cs" />
+    <Compile Include="ViewModels\InstitutionVM.cs" />
+    <Compile Include="ViewModels\InvTransactionVM.cs" />
+    <Compile Include="ViewModels\MainVM.LookupMaintenance.cs" />
+    <Compile Include="ViewModels\MainVM.BusyPanel.cs" />
+    <Compile Include="ViewModels\MainVM.cs" />
+    <Compile Include="ViewModels\MainVM.LookupReplacement.cs" />
+    <Compile Include="ViewModels\MainVM.TransactionSearch.cs" />
+    <Compile Include="ViewModels\PayeeVM.cs" />
+    <Compile Include="ViewModels\ScheduleSubtransactionVM.cs" />
+    <Compile Include="ViewModels\SubtransactionVM.cs" />
+    <Compile Include="WindowClosingBehavior.cs" />
+    <Compile Include="ViewModels\MainVM.TransactionSchedule.cs" />
+    <None Include="Views\InvTransaction.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <Page Include="Views\MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Views\MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="ViewModels\MainVM.AccountManagement.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\ArchiveLibrary\ArchiveLibrary.csproj">
+      <Project>{b97d55eb-e5bf-4caa-ae5c-652d7094aa67}</Project>
+      <Name>ArchiveLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\CommonLibrary\CommonLibrary.csproj">
+      <Project>{67ac06dd-6d0d-425a-b3fe-43772719ad89}</Project>
+      <Name>CommonLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\WpfLibrary\WpfLibrary.csproj">
+      <Project>{598d5904-9ecd-4569-b6da-42d5e200b123}</Project>
+      <Name>WpfLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Database\Database.sqlproj">
+      <Project>{a8a89e43-f88f-41b6-a2f7-feb611724a88}</Project>
+      <Name>Database</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.7.2">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4.7.2 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\financial-icon-125-128.png" />
+    <Resource Include="Images\financial-icon-16-16.png" />
+    <Resource Include="Images\financial-icon-250-256.png" />
+    <Resource Include="Images\financial-icon-31-32.png" />
+    <Resource Include="Images\financial-icon-442-452.png" />
+    <Resource Include="Images\financial-icon-47-48.png" />
+    <Resource Include="Images\financial-icon-63-64.png" />
+    <Resource Include="Images\financial-icon-94-96.png" />
+    <Resource Include="Images\financial-icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Tests\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

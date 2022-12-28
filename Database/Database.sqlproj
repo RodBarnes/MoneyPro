@@ -1,0 +1,167 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Name>Database</Name>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>4.1</ProjectVersion>
+    <ProjectGuid>{a8a89e43-f88f-41b6-a2f7-feb611724a88}</ProjectGuid>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql150DatabaseSchemaProvider</DSP>
+    <OutputType>Database</OutputType>
+    <RootPath>
+    </RootPath>
+    <RootNamespace>Database</RootNamespace>
+    <AssemblyName>Database</AssemblyName>
+    <ModelCollation>1033, CI</ModelCollation>
+    <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
+    <DeployToDatabase>True</DeployToDatabase>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <TargetLanguage>CS</TargetLanguage>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <SqlServerVerification>False</SqlServerVerification>
+    <IncludeCompositeObjects>True</IncludeCompositeObjects>
+    <TargetDatabaseSet>True</TargetDatabaseSet>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <SqlTargetName />
+  </PropertyGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
+    <!-- Default to the v11.0 targets path if the targets file for the current VS version is not found -->
+    <SSDTExists Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">True</SSDTExists>
+    <VisualStudioVersion Condition="'$(SSDTExists)' == ''">11.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Condition="'$(SQLDBExtensionsRefPath)' != ''" Project="$(SQLDBExtensionsRefPath)\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <Import Condition="'$(SQLDBExtensionsRefPath)' == ''" Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <ItemGroup>
+    <Folder Include="Properties" />
+    <Folder Include="Scripts" />
+    <Folder Include="Views" />
+    <Folder Include="Functions" />
+    <Folder Include="Procedures" />
+    <Folder Include="Tables" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="Scripts\Populate Lookups.sql" />
+    <Build Include="Views\vwSearch.sql" />
+    <Build Include="Procedures\spResolveTransfers.sql" />
+    <Build Include="Procedures\spAccountsRead.sql" />
+    <Build Include="Procedures\spAccountInsert.sql" />
+    <Build Include="Procedures\spAccountUpdate.sql" />
+    <Build Include="Procedures\spAccountDelete.sql" />
+    <Build Include="Procedures\spBankTransactionsRead.sql" />
+    <Build Include="Procedures\spBankTransactionInsert.sql" />
+    <Build Include="Procedures\spBankTransactionUpdate.sql" />
+    <Build Include="Procedures\spBankTransactionDelete.sql" />
+    <Build Include="Procedures\spBankTransactionsDelete.sql" />
+    <Build Include="Procedures\spSubtransactionsRead.sql" />
+    <Build Include="Procedures\spSubtransactionInsert.sql" />
+    <Build Include="Procedures\spSubtransactionUpdate.sql" />
+    <Build Include="Procedures\spSubtransactionDelete.sql" />
+    <Build Include="Procedures\spSubtransactionsDeleteForTransaction.sql" />
+    <Build Include="Procedures\spSubtransactionsDeleteForAccount.sql" />
+    <Build Include="Procedures\spInvTransactionsRead.sql" />
+    <Build Include="Procedures\spInvTransactionInsert.sql" />
+    <Build Include="Procedures\spInvTransactionUpdate.sql" />
+    <Build Include="Procedures\spInvTransactionDelete.sql" />
+    <Build Include="Procedures\spAccountTypesRead.sql" />
+    <Build Include="Procedures\spAccountTypeRead.sql" />
+    <Build Include="Procedures\spInstitutionsRead.sql" />
+    <Build Include="Procedures\spInstitutionInsert.sql" />
+    <Build Include="Procedures\spInstitutionUpdate.sql" />
+    <Build Include="Procedures\spInstitutionDelete.sql" />
+    <Build Include="Procedures\spReferencesRead.sql" />
+    <Build Include="Procedures\spPayeesRead.sql" />
+    <Build Include="Procedures\spPayeeDelete.sql" />
+    <Build Include="Procedures\spPayeesDefault.sql" />
+    <Build Include="Procedures\spInvestmentInsert.sql" />
+    <Build Include="Procedures\spSubclassesRead.sql" />
+    <Build Include="Procedures\spSubclassInsert.sql" />
+    <Build Include="Procedures\spSubclassUpdate.sql" />
+    <Build Include="Procedures\spSubclassDelete.sql" />
+    <Build Include="Procedures\spClassDelete.sql" />
+    <Build Include="Procedures\spClassesRead.sql" />
+    <Build Include="Procedures\spClassInsert.sql" />
+    <Build Include="Procedures\spClassUpdate.sql" />
+    <Build Include="Procedures\spSubcategoriesRead.sql" />
+    <Build Include="Procedures\spSubcategoryDelete.sql" />
+    <Build Include="Procedures\spSubcategoryInsert.sql" />
+    <Build Include="Procedures\spSubcategoryUpdate.sql" />
+    <Build Include="Procedures\spCategoriesRead.sql" />
+    <Build Include="Procedures\spCategoryDelete.sql" />
+    <Build Include="Procedures\spCategoryInsert.sql" />
+    <Build Include="Procedures\spCategoryUpdate.sql" />
+    <Build Include="Tables\Account.sql" />
+    <None Include="Development.publish.xml" />
+    <None Include="Production.publish.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <RefactorLog Include="Database.refactorlog" />
+  </ItemGroup>
+  <ItemGroup>
+    <PreDeploy Include="Scripts\Clear data.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="Tables\AccountType.sql" />
+    <Build Include="Tables\BankTransaction.sql" />
+    <Build Include="Tables\Budget.sql" />
+    <Build Include="Tables\Category.sql" />
+    <Build Include="Tables\Class.sql" />
+    <Build Include="Tables\Institution.sql" />
+    <Build Include="Tables\Investment.sql" />
+    <Build Include="Tables\InvestmentAction.sql" />
+    <Build Include="Tables\InvTransaction.sql" />
+    <Build Include="Tables\Payee.sql" />
+    <Build Include="Tables\ScheduleTransaction.sql" />
+    <Build Include="Tables\ScheduleRule.sql" />
+    <Build Include="Tables\Subcategory.sql" />
+    <Build Include="Tables\Subclass.sql" />
+    <Build Include="Tables\Subtransaction.sql" />
+    <None Include="Scripts\Check Main Data.sql" />
+    <None Include="Scripts\Merge Transfers.sql" />
+    <None Include="Scripts\Test lookups.sql" />
+    <None Include="Scripts\Test Transfer.sql" />
+    <None Include="Scripts\Verify Lookup Replacement.sql" />
+    <Build Include="Procedures\spPayeeInsert.sql" />
+    <Build Include="Procedures\spPayeeUpdate.sql" />
+    <Build Include="Tables\ScheduleSubtransaction.sql" />
+    <Build Include="Functions\fnGetNextScheduleDate.sql" />
+    <Build Include="Procedures\spAddScheduleTransaction.sql" />
+    <None Include="Scripts\Add Schedule Transactions.sql" />
+    <Build Include="Procedures\spScheduleRulesRead.sql" />
+    <Build Include="Procedures\spScheduleSubtransactionDelete.sql" />
+    <Build Include="Procedures\spScheduleSubtransactionInsert.sql" />
+    <Build Include="Procedures\spScheduleSubtransactionsRead.sql" />
+    <Build Include="Procedures\spScheduleSubtransactionUpdate.sql" />
+    <Build Include="Procedures\spScheduleTransactionDelete.sql" />
+    <Build Include="Procedures\spScheduleTransactionInsert.sql" />
+    <Build Include="Procedures\spScheduleTransactionsRead.sql" />
+    <Build Include="Procedures\spScheduleTransactionUpdate.sql" />
+    <Build Include="Procedures\spScheduleSubtransactionsDeleteForScheduleTransaction.sql" />
+    <None Include="Scripts\Check Schedules.sql" />
+  </ItemGroup>
+</Project>

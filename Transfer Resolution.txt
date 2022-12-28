@@ -1,0 +1,29 @@
+1. Find all subtransactions which have a category name in brackets
+2. Set:
+	XferAccountId to the xfer AccountId,
+	Replace Category.Text with "Transfer"
+	Set Subcategory.Text to "" (it will display the account name when the record is displayed).
+3. Remove the category entry for the xfer account (the bracketed name) created during the import.
+4. Update any transfers for which no xfer account exists to just remove the brackets from the category name
+
+
+Thoughts
+--------
+Existing code works (but only the first time, I think):
+	- Currently works directly upon database after import has been added to the databse.
+	- Running ResolveTransfers again after subsequent imports fails (I think).
+Can't resolve during import because xfer account may not exist at the time of the import
+	- Think of import of the first account or of later accounts when the xfer hasn't been imported.
+So, have to do the import (as it currently does) and then resolve after the import.
+	- But should this be done in code, before it gets written to the database?
+	- Or can the existing code be modified to continue to work directly in database (fastest)?
+	- What about this scenario:
+		- Import some accounts, do the ResolveTransfers that include references to a non-existing account
+			- This will result in those account names becoming just Category entries
+		- Import another account, that is that xfer account
+			- Which didn't exist at the time of the previous resolution so the names are just Categories now
+			- How does this get fixed?
+	- Can it decide that an account name as a Category.Text still matches even if it doesn't have brackets?
+If resolution cannot be done automatically -- if it requires user decision, it must be done in code.
+Should the resolution prompt whether to keep the brackets in Category.Text when encountered?  Thus, letting the user decide whether they will be used later or not?
+Or do I even worry about this and just set policy that resolution is done once only after all accounts have been imported?

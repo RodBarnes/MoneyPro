@@ -1,0 +1,29 @@
+﻿** Highlights
+     Tables that will be rebuilt
+       None
+     Clustered indexes that will be dropped
+       None
+     Clustered indexes that will be created
+       None
+     Possible data issues
+       None
+
+** User actions
+     Create
+       [dbo].[Account] (Table)
+       [dbo].[AccountType] (Table)
+       [dbo].[BankTransaction] (Table)
+       [dbo].[Budget] (Table)
+       [dbo].[Category] (Table)
+       [dbo].[Institution] (Table)
+       [dbo].[InvTransaction] (Table)
+       [dbo].[Payee] (Table)
+       [dbo].[Scheduled] (Table)
+       [dbo].[ScheduledRule] (Table)
+       [dbo].[ScheduledType] (Table)
+       [dbo].[Split] (Table)
+       [dbo].[Tag] (Table)
+       [dbo].[TaxCategory] (Table)
+       [dbo].[Transaction-Tag] (Table)
+
+** Supporting actions

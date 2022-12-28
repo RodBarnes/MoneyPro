@@ -1,0 +1,67 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.3.32929.385
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Database", "Database\Database.sqlproj", "{A8A89E43-F88F-41B6-A2F7-FEB611724A88}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WPF", "WPF\WPF.csproj", "{C1DAC36A-8D5E-4A50-BA54-155987FC6332}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonLibrary", "..\CommonLibrary\CommonLibrary.csproj", "{67AC06DD-6D0D-425A-B3FE-43772719AD89}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{33CAD2B8-D9D6-48A5-9766-09B4FEB48F1B}"
+	ProjectSection(SolutionItems) = preProject
+		Analysis and Considerations.docx = Analysis and Considerations.docx
+		Analysis of Model Collections.txt = Analysis of Model Collections.txt
+		Design.docx = Design.docx
+		HSA.xlsx = HSA.xlsx
+		Import Help.docx = Import Help.docx
+		Merge Comparison.xlsx = Merge Comparison.xlsx
+		Notes.txt = Notes.txt
+		Persistence Analysis.txt = Persistence Analysis.txt
+		Test AccountDetails Institution.xlsx = Test AccountDetails Institution.xlsx
+		Test Transfer.txt = Test Transfer.txt
+		Transfer Resolution.docx = Transfer Resolution.docx
+		USAA.xlsx = USAA.xlsx
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfLibrary", "..\WpfLibrary\WpfLibrary.csproj", "{598D5904-9ECD-4569-B6DA-42D5E200B123}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArchiveLibrary", "..\ArchiveLibrary\ArchiveLibrary.csproj", "{B97D55EB-E5BF-4CAA-AE5C-652D7094AA67}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A8A89E43-F88F-41B6-A2F7-FEB611724A88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A8A89E43-F88F-41B6-A2F7-FEB611724A88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A8A89E43-F88F-41B6-A2F7-FEB611724A88}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{A8A89E43-F88F-41B6-A2F7-FEB611724A88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A8A89E43-F88F-41B6-A2F7-FEB611724A88}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A8A89E43-F88F-41B6-A2F7-FEB611724A88}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{C1DAC36A-8D5E-4A50-BA54-155987FC6332}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1DAC36A-8D5E-4A50-BA54-155987FC6332}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1DAC36A-8D5E-4A50-BA54-155987FC6332}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1DAC36A-8D5E-4A50-BA54-155987FC6332}.Release|Any CPU.Build.0 = Release|Any CPU
+		{67AC06DD-6D0D-425A-B3FE-43772719AD89}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67AC06DD-6D0D-425A-B3FE-43772719AD89}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67AC06DD-6D0D-425A-B3FE-43772719AD89}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67AC06DD-6D0D-425A-B3FE-43772719AD89}.Release|Any CPU.Build.0 = Release|Any CPU
+		{598D5904-9ECD-4569-B6DA-42D5E200B123}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{598D5904-9ECD-4569-B6DA-42D5E200B123}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{598D5904-9ECD-4569-B6DA-42D5E200B123}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{598D5904-9ECD-4569-B6DA-42D5E200B123}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B97D55EB-E5BF-4CAA-AE5C-652D7094AA67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B97D55EB-E5BF-4CAA-AE5C-652D7094AA67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B97D55EB-E5BF-4CAA-AE5C-652D7094AA67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B97D55EB-E5BF-4CAA-AE5C-652D7094AA67}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0CC58DE2-4A8F-40F7-9CF5-1010E801DF4D}
+	EndGlobalSection
+EndGlobal

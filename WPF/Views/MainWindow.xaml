@@ -1,0 +1,1195 @@
+﻿<Window x:Class="MoneyPro.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:main="clr-namespace:MoneyPro"
+        xmlns:model="clr-namespace:MoneyPro.Models"
+        xmlns:viewmodel="clr-namespace:MoneyPro.ViewModels"
+        xmlns:valid="clr-namespace:MoneyPro.Validation"
+        xmlns:convert="clr-namespace:MoneyPro.Converters"
+        xmlns:common="clr-namespace:Common;assembly=Common"
+        xmlns:ext="clr-namespace:Common.MarkupExtensions;assembly=WpfLibrary"
+        xmlns:uctl="clr-namespace:Common.UserControls;assembly=WpfLibrary"
+        mc:Ignorable="d"
+        Title="{Binding WindowTitle}"
+        Height="{Binding WindowHeight}" Width="{Binding WindowWidth}"
+        MinHeight="600" MinWidth="975"
+        WindowStartupLocation="CenterScreen"
+        ShowInTaskbar="True"
+        Icon="/Images/financial-icon.ico"
+        SizeToContent="Width"
+        Background="Wheat"
+        main:WindowClosingBehavior.Closing="{Binding ClosingCommand}"
+        Closing="Window_Closing" >
+    <Window.Resources>
+        <!-- Enum lists -->
+        <ObjectDataProvider x:Key="EnumTransactionStatus" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="model:TransactionStatus" />
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider x:Key="EnumAccountStatus" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="model:AccountStatus" />
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        
+        <!-- Static lookup lists -->
+        <viewmodel:AccountVM x:Key="Account" />
+        <viewmodel:BankTransactionVM x:Key="BankTransaction" />
+        <viewmodel:SubtransactionVM x:Key="Subtransaction" />
+        <viewmodel:ScheduleTransactionVM x:Key="SchedTransaction" />
+
+        <!-- Converters -->
+        <convert:TransactionConverter x:Key="TransConverter" />
+        <convert:SubtransactionConverter x:Key="SubtransConverter" />
+        <convert:StringToNumberConverter x:Key="StringToNumberConverter" />
+        <convert:NullToStringConverter x:Key="NullToStringConverter" />
+        
+        <!-- Styles -->
+        <Style x:Key="Body_Content_DataGrid_Centering" TargetType="{x:Type DataGridCell}">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type DataGridCell}">
+                        <Grid Background="{TemplateBinding Background}">
+                            <ContentPresenter VerticalAlignment="Center" />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    
+    <Grid>
+        <Grid x:Name="MainPanel">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="26" />
+                <RowDefinition Height="30" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            
+            <Menu x:Name="Menubar" Grid.Row="0"
+                Background="Wheat" DockPanel.Dock="Top" Height="20">
+                <MenuItem Header="File" >
+                    <MenuItem Header="Open" Command="{Binding OpenDatabaseCommand}" />
+                    <MenuItem Header="Backup" Command="{Binding BackupDatabaseCommand}" />
+                    <Separator />
+                    <MenuItem Header="Exit" Command="{Binding ExitApplicationCommand}" />
+                </MenuItem>
+                <MenuItem Header="Account">
+                    <MenuItem Header="Show Details..." Command="{Binding AccountDetailsCommand}" />
+                    <MenuItem Header="Export CSV" Command="{Binding WriteToCsvCommand}" />
+                    <Separator />
+                    <MenuItem Header="Import" Command="{Binding ImportAccountCommand}" />
+                    <MenuItem Header="New" Command="{Binding NewAccountCommand}" />
+                    <MenuItem Header="Delete" Command="{Binding DeleteAccountCommand}" />
+                </MenuItem>
+                <MenuItem Header="Tools">
+                    <MenuItem Header="Search..." Command="{Binding ShowTransactionSearchCommand}" />
+                    <MenuItem Header="Maintenance..." Command="{Binding ShowMaintenanceCommand}" />
+                    <MenuItem Header="Schedules..." Command="{Binding ShowSchedulesCommand}" />
+                    <!--<MenuItem Header="Import Investments" Command="{Binding ImportInvestmentInfoCommand}" />-->
+                    <Separator />
+                    <MenuItem Header="Options">
+                        <MenuItem Header="Show Closed Accounts" IsCheckable="True" IsChecked="{Binding ShowClosedAccounts}" />
+                        <MenuItem Header="Show Reconciled Tranasctions" IsCheckable="True" IsChecked="{Binding ShowReconciledTransactions}" />
+                    </MenuItem>
+                </MenuItem>
+                <MenuItem Header="Help" >
+                    <MenuItem Header="About" Command="{Binding ShowAboutCommand}" />
+                </MenuItem>
+            </Menu>
+
+            <Grid x:Name="AccountProperties" Grid.Row="1" >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="10" />
+                    <ColumnDefinition Width="280" />
+                    <ColumnDefinition Width="120" />
+                    <ColumnDefinition Width="120" />
+                    <ColumnDefinition Width="120" />
+                    <ColumnDefinition Width="120" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="10" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Left">
+                    <Label Content="Account" VerticalAlignment="Center" />
+                    <ComboBox x:Name="ControlsAccount" VerticalAlignment="Center" Width="210"
+                              ItemsSource="{Binding AccountList}" 
+                              SelectedItem="{Binding SelectedAccount}"
+                              IsEnabled="{Binding HasAccounts}" >
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Name}" 
+                                    Foreground="{Binding ItemForeColor}" 
+                                    Background="{Binding ItemBackColor}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </StackPanel>
+                <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock Text="Type: " VerticalAlignment="Center" />
+                    <TextBlock x:Name="ControlsType" VerticalAlignment="Center" 
+                               Text="{Binding SelectedAccount.Type.DisplayName}" />
+                </StackPanel>
+                <StackPanel Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Center" >
+                    <TextBlock Text="Status: " VerticalAlignment="Center" />
+                    <TextBlock x:Name="ControlsStatus" VerticalAlignment="Center" 
+                            Text="{Binding SelectedAccount.Status}" />
+                </StackPanel>
+                <StackPanel Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock Text="Transactions: " VerticalAlignment="Center" />
+                    <TextBlock x:Name="ControlsCount" VerticalAlignment="Center" 
+                            Text="{Binding SelectedAccount.TransactionsCount}" />
+                </StackPanel>
+                <StackPanel Grid.Column="5" Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock Text="Balance: " VerticalAlignment="Center" />
+                    <TextBlock x:Name="ControlsTotal" VerticalAlignment="Center" 
+                            Text="{Binding SelectedAccount.TransactionsTotal, StringFormat=\{0:C\}}" />
+                </StackPanel>
+            </Grid>
+
+            <DataGrid x:Name="BankDataGrid" Grid.Row="2"
+                    Visibility="{Binding BankDataGridVisibility}"
+                    ItemsSource="{Binding SelectedAccount.Transactions, UpdateSourceTrigger=LostFocus}"
+                    SelectedItem="{Binding SelectedAccount.SelectedTransaction, Converter={StaticResource TransConverter}}"
+                    RowDetailsVisibilityMode="{Binding SubTransVisibility}"
+                    CellStyle="{StaticResource Body_Content_DataGrid_Centering}"
+                    SelectionUnit="FullRow"
+                    SelectionMode="Extended"
+                    CanUserSortColumns="True"
+                    CanUserAddRows="True"
+                    CanUserDeleteRows="True"
+                    CanUserReorderColumns="False"
+                    CanUserResizeRows="False"
+                    RowHeaderWidth ="0"
+                    AutoGenerateColumns="False"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    Margin="5"
+                    RowBackground="AliceBlue"
+                    LoadingRow="BankDataGrid_LoadingRow"
+                    BeginningEdit="BankDataGrid_BeginningEdit"
+                    CurrentCellChanged="BankDataGrid_CurrentCellChanged"
+                    RowEditEnding="BankDataGrid_RowEditEnding"
+                    ContextMenuOpening="BankDataGrid_ContextMenuOpening" >
+                <DataGrid.CommandBindings>
+                    <CommandBinding Command="Cut" CanExecute="BankDataGrid_CanCut" Executed="BankDataGrid_Cut" />
+                    <CommandBinding Command="Copy" CanExecute="BankDataGrid_CanCopy" Executed="BankDataGrid_Copy" />
+                    <CommandBinding Command="Paste" CanExecute="BankDataGrid_CanPaste" Executed="BankDataGrid_Paste" />
+                    <CommandBinding Command="Delete" CanExecute="BankDataGrid_CanDelete" Executed="BankDataGrid_Delete" />
+                </DataGrid.CommandBindings>
+                <DataGrid.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Command="Cut" />
+                        <MenuItem Command="Copy" />
+                        <MenuItem Command="Paste" />
+                        <MenuItem Command="Delete" />
+                        <Separator />
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
+                
+                <DataGrid.RowValidationRules>
+                    <valid:BankTransactionValidation ValidationStep="CommittedValue" />
+                </DataGrid.RowValidationRules>
+
+                <DataGrid.Columns>
+                    <DataGridTextColumn x:Name="BankTransReference" Header="Ref" Width="70"
+                                        Binding="{Binding Reference}" />
+                    <DataGridTemplateColumn x:Name="BankTransDate" Header="Date" Width="100" SortMemberPath="Date" >
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Date, StringFormat=\{0:MM/dd/yyyy\}}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                        <DataGridTemplateColumn.CellEditingTemplate>
+                            <DataTemplate>
+                                <DatePicker SelectedDate="{Binding Date}" />
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellEditingTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridComboBoxColumn x:Name="BankTransPayee" Header="Payee" Width="230" 
+                            ItemsSource="{Binding Source={StaticResource BankTransaction}, Path=Payees}" DisplayMemberPath="Name" 
+                            TextBinding="{Binding Payee, UpdateSourceTrigger=LostFocus}" >
+                        <DataGridComboBoxColumn.EditingElementStyle>
+                            <Style TargetType="ComboBox">
+                                <Setter Property="IsEditable" Value="True" />
+                            </Style>
+                        </DataGridComboBoxColumn.EditingElementStyle>
+                    </DataGridComboBoxColumn>
+
+                    <DataGridComboBoxColumn x:Name="BankTransStatus" Header="?" Width="18" 
+                                            ItemsSource="{Binding Source={StaticResource EnumTransactionStatus}, Mode=OneWay}" 
+                                            SelectedItemBinding="{Binding Status}" />
+                    <!--<DataGridComboBoxColumn x:Name="BankTransStatus" Header="?" Width="18" 
+                                            ItemsSource="{Binding Source={ext:Enumeration {x:Type data:TransactionStatus}}}" DisplayMemberPath="DisplayName" 
+                                            SelectedItemBinding="{Binding Status}" />-->
+
+                    <DataGridCheckBoxColumn x:Name="BankTransctionVoid" Header="V" Width="18"
+                            Binding="{Binding Void}" />
+
+                    <DataGridTextColumn x:Name="BankTransAmount" Header="Amount" Width="80" IsReadOnly="True" 
+                                        Binding="{Binding Amount, StringFormat=\{0:N2\}}" >
+                        <DataGridTextColumn.CellStyle>
+                            <Style>
+                                <Setter Property="TextBlock.TextAlignment" Value="Right" />
+                            </Style>
+                        </DataGridTextColumn.CellStyle>
+                    </DataGridTextColumn>
+
+                    <DataGridTextColumn x:Name="BankTransMemo" Header="Memo" Width="220" 
+                                        Binding="{Binding Memo}" />
+                    <DataGridTemplateColumn>
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button x:Name="ToggleSubs" IsDefault="True" Click="BankDataGrid_ToggleSubs">Subs</Button>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+                
+                <DataGrid.RowDetailsTemplate>
+                    <DataTemplate x:Name="SubDataTemplate">
+                        <DataGrid x:Name="SubDataGrid"
+                        ItemsSource="{Binding Subtransactions}"
+                        SelectedItem="{Binding SelectedSubtransaction, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource SubtransConverter}}"
+                        CellStyle="{StaticResource Body_Content_DataGrid_Centering}"
+                        CanUserSortColumns="True"
+                        CanUserAddRows="True"
+                        CanUserDeleteRows="True"
+                        CanUserReorderColumns="False"
+                        CanUserResizeRows="False"
+                        RowHeaderWidth="0"
+                        RowBackground="Bisque"
+                        AutoGenerateColumns="False"
+                        VerticalAlignment="Stretch"
+                        BeginningEdit="SubDataGrid_BeginningEdit"
+                        CurrentCellChanged="SubDataGrid_CurrentCellChanged"
+                        RowEditEnding="SubDataGrid_RowEditEnding"
+                        ContextMenuOpening="SubDataGrid_ContextMenuOpening"
+                        ContextMenuClosing="SubDataGrid_ContextMenuClosing" >
+                            
+                            <DataGrid.RowValidationRules>
+                                <valid:SubtransactionValidation ValidationStep="UpdatedValue" />
+                                <valid:SubtransactionValidation ValidationStep="CommittedValue" />
+                            </DataGrid.RowValidationRules>
+
+                            <DataGrid.Columns>
+                                <DataGridTextColumn x:Name="SubtransAmount" Header="Amount" Width="80" 
+                                                    Binding="{Binding Amount, StringFormat=\{0:N2\}, Converter={StaticResource StringToNumberConverter}}" >
+                                    <DataGridTextColumn.CellStyle>
+                                        <Style>
+                                            <Setter Property="TextBlock.TextAlignment" Value="Right" />
+                                        </Style>
+                                    </DataGridTextColumn.CellStyle>
+                                </DataGridTextColumn>
+
+                                <DataGridTextColumn x:Name="SubtransMemo" Header="Memo" Width="220" 
+                                                    Binding="{Binding Memo}" />
+
+                                <DataGridComboBoxColumn x:Name="SubtransXferAccount" Header="XferAccount" Width="100"
+                                        ItemsSource="{Binding Source={StaticResource Subtransaction}, Path=XferAccounts}" DisplayMemberPath="Name" 
+                                        TextBinding="{Binding XferAccount, UpdateSourceTrigger=LostFocus}" >
+                                </DataGridComboBoxColumn>
+
+                                <DataGridComboBoxColumn x:Name="SubtransCategory" Header="Category" Width="100"
+                                    ItemsSource="{Binding Source={StaticResource Subtransaction}, Path=Categories}" DisplayMemberPath="Text" 
+                                    TextBinding="{Binding Category, UpdateSourceTrigger=LostFocus}" >
+                                    <DataGridComboBoxColumn.EditingElementStyle>
+                                        <Style TargetType="ComboBox">
+                                            <Setter Property="IsEditable" Value="True" />
+                                        </Style>
+                                    </DataGridComboBoxColumn.EditingElementStyle>
+                                </DataGridComboBoxColumn>
+
+                                <DataGridComboBoxColumn x:Name="SubtransSubcategory" Header="Subcategory" Width="100"
+                                    ItemsSource="{Binding Source={StaticResource Subtransaction}, Path=Subcategories}" DisplayMemberPath="Text" 
+                                    TextBinding="{Binding Subcategory, UpdateSourceTrigger=LostFocus}" >
+                                    <DataGridComboBoxColumn.EditingElementStyle>
+                                        <Style TargetType="ComboBox">
+                                            <Setter Property="IsEditable" Value="True" />
+                                        </Style>
+                                    </DataGridComboBoxColumn.EditingElementStyle>
+                                </DataGridComboBoxColumn>
+
+                                <DataGridComboBoxColumn x:Name="SubtransClass" Header="Class" Width="100"
+                                    ItemsSource="{Binding Source={StaticResource Subtransaction}, Path=Classes}" DisplayMemberPath="Text" 
+                                    TextBinding="{Binding Class, UpdateSourceTrigger=LostFocus}" >
+                                    <DataGridComboBoxColumn.EditingElementStyle>
+                                        <Style TargetType="ComboBox">
+                                            <Setter Property="IsEditable" Value="True" />
+                                        </Style>
+                                    </DataGridComboBoxColumn.EditingElementStyle>
+                                </DataGridComboBoxColumn>
+
+                                <DataGridComboBoxColumn x:Name="SubtransSubclass" Header="Subclass" Width="100"
+                                    ItemsSource="{Binding Source={StaticResource Subtransaction}, Path=Subclasses}" DisplayMemberPath="Text" 
+                                    TextBinding="{Binding Subclass, UpdateSourceTrigger=LostFocus}" >
+                                    <DataGridComboBoxColumn.EditingElementStyle>
+                                        <Style TargetType="ComboBox">
+                                            <Setter Property="IsEditable" Value="True" />
+                                        </Style>
+                                    </DataGridComboBoxColumn.EditingElementStyle>
+                                </DataGridComboBoxColumn>
+
+                                <!--<DataGridTextColumn x:Name="SubtransIsTranfser" Header="IsTransfer" Width="220" 
+                                                    Binding="{Binding IsTransfer, Mode=OneWay}" />-->
+
+                                <DataGridTextColumn x:Name="ValidationResult" Header="Validation" Width="220" 
+                                                    Binding="{Binding ValidationResult, Mode=OneWay}" />
+
+                            </DataGrid.Columns>
+                            <DataGrid.CommandBindings>
+                                <CommandBinding Command="Cut" CanExecute="SubDataGrid_CanCut" Executed="SubDataGrid_Cut" />
+                                <CommandBinding Command="Copy" CanExecute="SubDataGrid_CanCopy" Executed="SubDataGrid_Copy" />
+                                <CommandBinding Command="Paste" CanExecute="SubDataGrid_CanPaste" Executed="SubDataGrid_Paste" />
+                                <CommandBinding Command="Delete" CanExecute="SubDataGrid_CanDelete" Executed="SubDataGrid_Delete" />
+                            </DataGrid.CommandBindings>
+                            <DataGrid.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Command="Cut" />
+                                    <MenuItem Command="Copy" />
+                                    <MenuItem Command="Paste" />
+                                    <MenuItem Command="Delete" />
+                                </ContextMenu>
+                            </DataGrid.ContextMenu>
+                        </DataGrid>
+                    </DataTemplate>
+                </DataGrid.RowDetailsTemplate>
+            </DataGrid>
+
+        </Grid>
+
+        <Image Visibility="{Binding BackgroundImageVisibility}" Source="/Images/financial-icon-442-452.png" Width="442" Height="452" Opacity=".45"/>
+
+        <Grid x:Name="AccountManagement" 
+            Visibility="{Binding AccountDetailsVisibility}" >
+            <Grid Background="Black" Opacity="0.5"/>
+            <Border
+                MinWidth="50"
+                Background="LightBlue" 
+                BorderBrush="Black" 
+                BorderThickness="1" 
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+                <StackPanel Width="275">
+                    <DockPanel>
+                        <Label Content="Type" HorizontalAlignment="Left" />
+                        <ComboBox x:Name="AccountDetailsType" HorizontalAlignment="Left" VerticalContentAlignment="Center" Margin="34,5,5,5" Width="200"
+                            ItemsSource="{Binding Source={StaticResource Account}, Path=AccountTypes}" DisplayMemberPath="DisplayName" 
+                            SelectedItem="{Binding AccountDetails.Type}" IsEnabled="{Binding AccountTypeSelectable}"
+                            Text="{Binding AccountDetails.Type.DisplayName}" />
+                    </DockPanel>
+                    <DockPanel Height="32">
+                        <Label Content="Name" HorizontalAlignment="Left" />
+                        <TextBox x:Name="AccountDetailsName" Text="{Binding AccountDetails.Name}" IsReadOnly="{Binding AccountNameReadonly}" HorizontalAlignment="Left" VerticalContentAlignment="Center" Margin="27,5,5,5" TextWrapping="Wrap" Width="200"/>
+                    </DockPanel>
+                    <DockPanel Height="32">
+                        <Label Content="Institution" HorizontalAlignment="Left" />
+                        <ComboBox x:Name="AccountDetailsInstitution" IsEditable="True" HorizontalAlignment="Left" VerticalContentAlignment="Center" Margin="5,5,5,5" Width="200"
+                            ItemsSource="{Binding Source={StaticResource Account}, Path=Institutions}" DisplayMemberPath="Name" 
+                            Text="{Binding AccountDetails.Institution, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" />
+                    </DockPanel>
+                    <DockPanel Height="32">
+                        <Label Content="Number" HorizontalAlignment="Left" />
+                        <TextBox x:Name="AccountDetailsNumber" HorizontalAlignment="Left" VerticalContentAlignment="Center" Margin="15,5,5,5" TextWrapping="Wrap" Width="200"
+                                 Text="{Binding AccountDetails.Number}" />
+                    </DockPanel>
+                    <DockPanel Height="32">
+                        <Label Content="Starting Balance" HorizontalAlignment="Left" />
+                        <TextBox x:Name="AccountDetailsBalance" HorizontalAlignment="Left" VerticalContentAlignment="Center" Margin="5,5,5,5" TextWrapping="Wrap" Width="168"
+                                 Text="{Binding AccountDetails.StartingBalance, StringFormat=\{0:N2\}}" 
+                                 IsReadOnly="{Binding AccountNameReadonly}" />
+                    </DockPanel>
+                    <DockPanel Height="32" Visibility="{Binding AccountStatusVisibility}" >
+                        <Label Content="Status" HorizontalAlignment="Left" />
+                        <ComboBox x:Name="AccountDetailsStatus" IsEditable="False" HorizontalAlignment="Left" VerticalContentAlignment="Center" Margin="27,5,5,5" Width="200"
+                                ItemsSource="{Binding Source={StaticResource EnumAccountStatus}, Mode=OneWay}" 
+                                SelectedItem="{Binding AccountDetails.Status}" />
+                    </DockPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button Content="Select" Command="{Binding SelectImportFileCommand}" Visibility="{Binding ImportButtonVisibility}" Width="50" Margin="0,5,5,5" />
+                        <Button Content="{Binding AccountButtonContent}" Command="{Binding AccountButtonCommand}" IsEnabled="{Binding AccountDetails.IsAccountAddable}" Width="50" Margin="0,5,5,5" />
+                        <Button Content="Cancel" Command="{Binding HideAccountDetailsCommand}" Width="50" Margin="0,5" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Grid x:Name="TransactionSchedules"
+            Visibility="{Binding SchedDataGridVisibility}" >
+            <Grid Background="Black" Opacity="0.5"/>
+            <Border
+                MinWidth="50"
+                Background="LightGreen" 
+                BorderBrush="Black" 
+                BorderThickness="1" 
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="10" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="10" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="28" />
+                        <RowDefinition Height="10" />
+                    </Grid.RowDefinitions>
+                    <DataGrid x:Name="SchedDataGrid" Grid.Row="1" Grid.Column="1" Width="920"
+                        ItemsSource="{Binding ScheduleTransactions, UpdateSourceTrigger=LostFocus}"
+                        SelectedItem="{Binding SelectedSched, Converter={StaticResource TransConverter}}"
+                        RowDetailsVisibilityMode="{Binding SubSchedVisibility}"
+                        CellStyle="{StaticResource Body_Content_DataGrid_Centering}"
+                        SelectionUnit="FullRow"
+                        SelectionMode="Extended"
+                        CanUserSortColumns="True"
+                        CanUserAddRows="True"
+                        CanUserDeleteRows="True"
+                        CanUserReorderColumns="False"
+                        CanUserResizeRows="False"
+                        RowHeaderWidth ="0"
+                        AutoGenerateColumns="False"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        Margin="5"
+                        RowBackground="AliceBlue"
+                        BeginningEdit="SchedDataGrid_BeginningEdit"
+                        CurrentCellChanged="SchedDataGrid_CurrentCellChanged"
+                        RowEditEnding="SchedDataGrid_RowEditEnding" >
+                        <DataGrid.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Place holder" />
+                            </ContextMenu>
+                        </DataGrid.ContextMenu>
+
+                        <DataGrid.RowValidationRules>
+                            <valid:ScheduleTransactionValidation ValidationStep="CommittedValue" />
+                        </DataGrid.RowValidationRules>
+
+                        <DataGrid.Columns>
+                            <DataGridTemplateColumn x:Name="ScheduleNextDate" Header="Date" Width="100" SortMemberPath="Date" >
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding NextDate, StringFormat=\{0:MM/dd/yyyy\}}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                                <DataGridTemplateColumn.CellEditingTemplate>
+                                    <DataTemplate>
+                                        <DatePicker SelectedDate="{Binding NextDate}" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellEditingTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridComboBoxColumn x:Name="SchedulePayee" Header="Payee" Width="230"
+                                    ItemsSource="{Binding Source={StaticResource BankTransaction}, Path=Payees}" DisplayMemberPath="Name" 
+                                    TextBinding="{Binding Payee, UpdateSourceTrigger=LostFocus}" >
+                                <DataGridComboBoxColumn.EditingElementStyle>
+                                    <Style TargetType="ComboBox">
+                                        <Setter Property="IsEditable" Value="True" />
+                                    </Style>
+                                </DataGridComboBoxColumn.EditingElementStyle>
+                            </DataGridComboBoxColumn>
+
+                            <DataGridTextColumn x:Name="ScheduleAmount" Header="Amount" Width="80" IsReadOnly="True"
+                                                Binding="{Binding Amount, StringFormat=\{0:N2\}}" >
+                                <DataGridTextColumn.CellStyle>
+                                    <Style>
+                                        <Setter Property="TextBlock.TextAlignment" Value="Right" />
+                                    </Style>
+                                </DataGridTextColumn.CellStyle>
+                            </DataGridTextColumn>
+
+                            <DataGridComboBoxColumn x:Name="ScheduleAccount" Header="Account" Width="120"
+                                ItemsSource="{Binding Source={StaticResource SchedTransaction}, Path=Accounts}" DisplayMemberPath="Name"
+                                TextBinding="{Binding Account}" >
+                            </DataGridComboBoxColumn>
+
+                            <DataGridComboBoxColumn x:Name="ScheduleRule" Header="Rule" Width="120"
+                                ItemsSource="{Binding Source={StaticResource SchedTransaction}, Path=ScheduleRules}" DisplayMemberPath="Name"
+                                TextBinding="{Binding Rule}" >
+                            </DataGridComboBoxColumn>
+
+                            <DataGridTextColumn x:Name="ScheduleMemo" Header="Memo" Width="220" 
+                                                Binding="{Binding Memo}" />
+
+                            <DataGridTemplateColumn>
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button x:Name="ToggleSubs" IsDefault="True" Click="SchedDataGrid_ToggleSubs">Subs</Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+
+                        <DataGrid.RowDetailsTemplate>
+                            <DataTemplate x:Name="SubSchedDataTemplate">
+                                <DataGrid x:Name="SubSchedDataGrid"
+                                ItemsSource="{Binding Subtransactions}"
+                                SelectedItem="{Binding SelectedSubtransaction, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource SubtransConverter}}"
+                                CellStyle="{StaticResource Body_Content_DataGrid_Centering}"
+                                CanUserSortColumns="True"
+                                CanUserAddRows="True"
+                                CanUserDeleteRows="True"
+                                CanUserReorderColumns="False"
+                                CanUserResizeRows="False"
+                                RowHeaderWidth="0"
+                                RowBackground="Bisque"
+                                AutoGenerateColumns="False"
+                                VerticalAlignment="Stretch"
+                                BeginningEdit="SubSchedDataGrid_BeginningEdit"
+                                CurrentCellChanged="SubSchedDataGrid_CurrentCellChanged"
+                                RowEditEnding="SubSchedDataGrid_RowEditEnding" >
+
+                                    <DataGrid.RowValidationRules>
+                                        <valid:ScheduleSubtransactionValidation ValidationStep="CommittedValue" />
+                                    </DataGrid.RowValidationRules>
+
+                                    <DataGrid.Columns>
+                                        <DataGridTextColumn x:Name="SubSchedAmount" Header="Amount" Width="80" 
+                                                            Binding="{Binding Amount, StringFormat=\{0:N2\}, Converter={StaticResource StringToNumberConverter}}" >
+                                            <DataGridTextColumn.CellStyle>
+                                                <Style>
+                                                    <Setter Property="TextBlock.TextAlignment" Value="Right" />
+                                                </Style>
+                                            </DataGridTextColumn.CellStyle>
+                                        </DataGridTextColumn>
+
+                                        <DataGridTextColumn x:Name="SubSchedMemo" Header="Memo" Width="220" 
+                                                            Binding="{Binding Memo}" />
+
+                                        <DataGridComboBoxColumn x:Name="SubSchedXferAccount" Header="XferAccount" Width="100"
+                                                ItemsSource="{Binding Source={StaticResource Subtransaction}, Path=XferAccounts}" DisplayMemberPath="Name" 
+                                                TextBinding="{Binding XferAccount, UpdateSourceTrigger=LostFocus}" >
+                                        </DataGridComboBoxColumn>
+
+                                        <DataGridComboBoxColumn x:Name="SubSchedCategory" Header="Category" Width="100"
+                                            ItemsSource="{Binding Source={StaticResource Subtransaction}, Path=Categories}" DisplayMemberPath="Text" 
+                                            TextBinding="{Binding Category, UpdateSourceTrigger=LostFocus}" >
+                                            <DataGridComboBoxColumn.EditingElementStyle>
+                                                <Style TargetType="ComboBox">
+                                                    <Setter Property="IsEditable" Value="True" />
+                                                </Style>
+                                            </DataGridComboBoxColumn.EditingElementStyle>
+                                        </DataGridComboBoxColumn>
+
+                                        <DataGridComboBoxColumn x:Name="SubSchedSubcategory" Header="Subcategory" Width="100"
+                                            ItemsSource="{Binding Source={StaticResource Subtransaction}, Path=Subcategories}" DisplayMemberPath="Text" 
+                                            TextBinding="{Binding Subcategory, UpdateSourceTrigger=LostFocus}" >
+                                            <DataGridComboBoxColumn.EditingElementStyle>
+                                                <Style TargetType="ComboBox">
+                                                    <Setter Property="IsEditable" Value="True" />
+                                                </Style>
+                                            </DataGridComboBoxColumn.EditingElementStyle>
+                                        </DataGridComboBoxColumn>
+
+                                        <DataGridComboBoxColumn x:Name="SubSchedukleClass" Header="Class" Width="100"
+                                            ItemsSource="{Binding Source={StaticResource Subtransaction}, Path=Classes}" DisplayMemberPath="Text" 
+                                            TextBinding="{Binding Class, UpdateSourceTrigger=LostFocus}" >
+                                            <DataGridComboBoxColumn.EditingElementStyle>
+                                                <Style TargetType="ComboBox">
+                                                    <Setter Property="IsEditable" Value="True" />
+                                                </Style>
+                                            </DataGridComboBoxColumn.EditingElementStyle>
+                                        </DataGridComboBoxColumn>
+
+                                        <DataGridComboBoxColumn x:Name="SubSchedSubclass" Header="Subclass" Width="100"
+                                            ItemsSource="{Binding Source={StaticResource Subtransaction}, Path=Subclasses}" DisplayMemberPath="Text" 
+                                            TextBinding="{Binding Subclass, UpdateSourceTrigger=LostFocus}" >
+                                            <DataGridComboBoxColumn.EditingElementStyle>
+                                                <Style TargetType="ComboBox">
+                                                    <Setter Property="IsEditable" Value="True" />
+                                                </Style>
+                                            </DataGridComboBoxColumn.EditingElementStyle>
+                                        </DataGridComboBoxColumn>
+
+                                    </DataGrid.Columns>
+                                    <DataGrid.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="Place holder" />
+                                        </ContextMenu>
+                                    </DataGrid.ContextMenu>
+                                </DataGrid>
+                            </DataTemplate>
+                        </DataGrid.RowDetailsTemplate>
+                    </DataGrid>
+                    <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button Content="Enter" Command="{Binding EnterScheduleCommand}" Height="20" Width="70" Margin="5,0,5,5"
+                            HorizontalAlignment="Center" VerticalContentAlignment="Center" />
+                        <!--<Button Content="New" Command="{Binding ShowNewScheduleCommand}" Height="20" Width="70" Margin="5,0,5,5"
+                            HorizontalAlignment="Center" VerticalContentAlignment="Center" />-->
+                        <Button Content="Delete" Command="{Binding DeleteScheduleCommand}" Height="20" Width="70" Margin="5,0,5,5"
+                            HorizontalAlignment="Center" VerticalContentAlignment="Center" />
+                        <Button Content="Close" Command="{Binding HideSchedulesCommand}" Height="20" Width="70" Margin="5,0,5,5"
+                            HorizontalAlignment="Center" VerticalContentAlignment="Center" />
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <Grid x:Name="NewSchedule"
+            Visibility="{Binding SelectedSchedVisibility}" >
+            <Grid Background="Black" Opacity="0.5"/>
+            <Border
+                MinWidth="50"
+                Background="LightGreen" 
+                BorderBrush="Black" 
+                BorderThickness="1" 
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+                <StackPanel Orientation="Vertical" >
+                    <StackPanel Orientation="Horizontal">
+                        <DockPanel>
+                            <Label Content="Schedule" HorizontalAlignment="Left" VerticalContentAlignment="Center" />
+                            <ComboBox x:Name="ScheduleRules" HorizontalAlignment="Left" VerticalContentAlignment="Center" Margin="5" Width="150"
+                                ItemsSource="{Binding ScheduleRules}" DisplayMemberPath="Name"
+                                SelectedValue="{Binding SelectedSched.Rule}" SelectedValuePath="Name" />
+                        </DockPanel>
+                        <DockPanel>
+                            <Label Content="Payee" HorizontalAlignment="Left" VerticalContentAlignment="Center" />
+                            <ComboBox x:Name="SchedulePayees" HorizontalAlignment="Left" VerticalContentAlignment="Center" Margin="5" Width="150"
+                                ItemsSource="{Binding Source={StaticResource BankTransaction}, Path=Payees}" DisplayMemberPath="Name"
+                                Text="{Binding SelectedSched.Payee, Converter={StaticResource NullToStringConverter}}" />
+                        </DockPanel>
+                        <DockPanel>
+                            <Label Content="Amount" HorizontalAlignment="Left" VerticalContentAlignment="Center" />
+                            <TextBox x:Name="SelectedSchedAmount" Margin="0,5" Height="24" IsReadOnly="True"
+                                HorizontalAlignment="Left" VerticalContentAlignment="Center" TextWrapping="Wrap" Width="80"
+                                Text="{Binding SelectedSched.Amount, StringFormat=\{0:N2\}}" />
+                        </DockPanel>
+                        <DockPanel>
+                            <Label Content="Memo" HorizontalAlignment="Left" VerticalContentAlignment="Center" />
+                            <TextBox x:Name="SelectedSchedMemo" Height="24" Margin="0,5,5,5" 
+                                HorizontalAlignment="Left" VerticalContentAlignment="Center" TextWrapping="Wrap" Width="200"
+                                Text="{Binding SelectedSched.Memo}" />
+                        </DockPanel>
+                    </StackPanel>
+                    <DataGrid x:Name="SelectedSchedSubDataGrid"
+                            ItemsSource="{Binding SelectedSched.Subtransactions}"
+                            SelectedItem="{Binding ScheduleSelectedSubtransaction}"
+                            Height="200"
+                            SelectionUnit="FullRow"
+                            SelectionMode="Single"
+                            CanUserSortColumns="True"
+                            CanUserAddRows="True"
+                            CanUserDeleteRows="True"
+                            CanUserReorderColumns="False"
+                            CanUserResizeRows="False"
+                            RowHeaderWidth="0"
+                            RowBackground="Bisque"
+                            AutoGenerateColumns="False"
+                            VerticalAlignment="Stretch"
+                            Margin="10,10,10,10" >
+                        <DataGrid.Columns>
+
+                            <DataGridTextColumn Header="Amount" Binding="{Binding Amount, StringFormat=\{0:N2\}}" Width="100" >
+                                <DataGridTextColumn.CellStyle>
+                                    <Style>
+                                        <Setter Property="TextBlock.TextAlignment" Value="Right" />
+                                    </Style>
+                                </DataGridTextColumn.CellStyle>
+                            </DataGridTextColumn>
+
+                            <DataGridTextColumn Header="SubMemo" Binding="{Binding Memo}" Width="220" />
+
+                            <DataGridComboBoxColumn x:Name="SelectedSubSchedCategory" Header="Category" Width="100"
+                                    ItemsSource="{Binding Source={StaticResource Subtransaction}, Path=Categories}" DisplayMemberPath="Text" 
+                                    TextBinding="{Binding Category, UpdateSourceTrigger=LostFocus}" >
+                                <DataGridComboBoxColumn.EditingElementStyle>
+                                    <Style TargetType="ComboBox">
+                                        <Setter Property="IsEditable" Value="True" />
+                                    </Style>
+                                </DataGridComboBoxColumn.EditingElementStyle>
+                            </DataGridComboBoxColumn>
+
+                            <DataGridComboBoxColumn x:Name="SelectedSubSchedSubcategory" Header="Subcategory" Width="100"
+                                    ItemsSource="{Binding Source={StaticResource Subtransaction}, Path=Subcategories}" DisplayMemberPath="Text" 
+                                    TextBinding="{Binding Subcategory, UpdateSourceTrigger=LostFocus}" >
+                                <DataGridComboBoxColumn.EditingElementStyle>
+                                    <Style TargetType="ComboBox">
+                                        <Setter Property="IsEditable" Value="True" />
+                                    </Style>
+                                </DataGridComboBoxColumn.EditingElementStyle>
+                            </DataGridComboBoxColumn>
+
+                            <DataGridComboBoxColumn x:Name="SelectedSubSchedClass" Header="Class" Width="100"
+                                    ItemsSource="{Binding Source={StaticResource Subtransaction}, Path=Classes}" DisplayMemberPath="Text" 
+                                    TextBinding="{Binding Class, UpdateSourceTrigger=LostFocus}" >
+                                <DataGridComboBoxColumn.EditingElementStyle>
+                                    <Style TargetType="ComboBox">
+                                        <Setter Property="IsEditable" Value="True" />
+                                    </Style>
+                                </DataGridComboBoxColumn.EditingElementStyle>
+                            </DataGridComboBoxColumn>
+
+                            <DataGridComboBoxColumn x:Name="SelectedSubSchedSubclass" Header="Subclass" Width="100"
+                                    ItemsSource="{Binding Source={StaticResource Subtransaction}, Path=Subclasses}" DisplayMemberPath="Text" 
+                                    TextBinding="{Binding Subclass, UpdateSourceTrigger=LostFocus}" >
+                                <DataGridComboBoxColumn.EditingElementStyle>
+                                    <Style TargetType="ComboBox">
+                                        <Setter Property="IsEditable" Value="True" />
+                                    </Style>
+                                </DataGridComboBoxColumn.EditingElementStyle>
+                            </DataGridComboBoxColumn>
+
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <StackPanel Orientation="Horizontal" Margin="5">
+                        <DockPanel>
+                            <Label Content="Next Date" HorizontalAlignment="Left" VerticalContentAlignment="Center" />
+                            <DatePicker x:Name="SelectedSchedNextDate" Margin="0,5" 
+                                HorizontalAlignment="Left" VerticalContentAlignment="Center" Width="100"
+                                Text="{Binding SelectedSched.NextDate, StringFormat=\{0:MM/dd/yyyy\}}" />
+                        </DockPanel>
+                        <DockPanel>
+                            <CheckBox x:Name="SelectedSchedAutoEnter" Content="Auto Enter" VerticalContentAlignment="Center" Margin="10"
+                                IsChecked="{Binding SelectedSched.AutoEnter}" />
+                        </DockPanel>
+                        <DockPanel>
+                            <Label Content="Days Before" HorizontalAlignment="Left" VerticalContentAlignment="Center" />
+                            <TextBox x:Name="SelectedSchedDaysBefore" Height="24" Margin="0,5"
+                                HorizontalAlignment="Left" VerticalContentAlignment="Center" Width="80" 
+                                Text="{Binding SelectedSched.EnterDaysBefore}"
+                                IsEnabled="{Binding SelectedSched.EnterDaysBeforeEnabled}"/>
+                        </DockPanel>
+                        <DockPanel>
+                            <Label Content="End Date" HorizontalAlignment="Left" VerticalContentAlignment="Center" />
+                            <DatePicker x:Name="SelectedSchedEndDate" Margin="0,5"
+                                HorizontalAlignment="Left" VerticalContentAlignment="Center" Width="100"
+                                Text="{Binding SelectedSched.DateEnd, StringFormat=\{0:MM/dd/yyyy\}}" />
+                        </DockPanel>
+                        <DockPanel>
+                            <Label Content="End Count" HorizontalAlignment="Left" VerticalContentAlignment="Center" />
+                            <TextBox x:Name="SelectedSchedEndCount" Height="24" Margin="0,5"
+                                HorizontalAlignment="Left" VerticalContentAlignment="Center" Width="80" 
+                                Text="{Binding SelectedSched.CountEnd}" />
+                        </DockPanel>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" >
+                        <Button x:Name="ScheduleSelectOk" Content="OK" Command="{Binding NewScheduleOkCommand}" Height="20" Width="70" Margin="5,0,5,5"
+                            HorizontalAlignment="Center" VerticalContentAlignment="Center" />
+                        <Button x:Name="ScheduleSelectCancel" Content="Cancel" Command="{Binding NewScheduleCancelCommand}" Height="20" Width="70" Margin="5,0,5,5"
+                            HorizontalAlignment="Center" VerticalContentAlignment="Center" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Grid x:Name="TransactionSearch" 
+            Visibility="{Binding SearchTransactionVisibility}">
+            <Grid Background="Black" Opacity="0.5"/>
+            <Border
+                MinWidth="50"
+                Background="LightYellow" 
+                BorderBrush="Black" 
+                BorderThickness="1" 
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="30" />
+                            <ColumnDefinition Width="90" />
+                            <ColumnDefinition Width="250" />
+                            <ColumnDefinition Width="10" />
+                            <ColumnDefinition Width="75" />
+                            <ColumnDefinition Width="250" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="20" />
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                        </Grid.RowDefinitions>
+                        <Label      Grid.Row="1" Grid.Column="1" Margin="0,5" Content="Account" HorizontalAlignment="Left" />
+                        <ComboBox x:Name="SearchAccount" 
+                                    Grid.Row="1" Grid.Column="2" Margin="0,5"  
+                                    IsEditable="True" HorizontalAlignment="Left" VerticalContentAlignment="Center" Width="250"
+                                    ItemsSource="{Binding AccountList}" DisplayMemberPath="Name"
+                                    SelectedItem="{Binding SearchAccount}" />
+
+                        <Label      Grid.Row="1" Grid.Column="4" Margin="0,5" Content="Payee" HorizontalAlignment="Left" />
+                        <ComboBox x:Name="SearchPayee" 
+                                    Grid.Row="1" Grid.Column="5" Margin="0,5" 
+                                    IsEditable="True" HorizontalAlignment="Left" VerticalContentAlignment="Center" Width="250"
+                                    ItemsSource="{Binding Source={StaticResource BankTransaction}, Path=Payees}" DisplayMemberPath="Name" 
+                                    SelectedItem="{Binding SearchPayee}" />
+
+                        <Label      Grid.Row="2" Grid.Column="1" Margin="0,5" Content="From Date" HorizontalAlignment="Left" />
+                        <DatePicker x:Name="SearchFromDate" 
+                                    Grid.Row="2" Grid.Column="2" Margin="0,5" 
+                                    HorizontalAlignment="Left" VerticalAlignment="Center" Width="100"
+                                    SelectedDate="{Binding SearchFromDate}" />
+
+                        <Label      Grid.Row="2" Grid.Column="4" Margin="0,5" Content="To Date" HorizontalAlignment="Left" />
+                        <DatePicker x:Name="SearchToDate"
+                                    Grid.Row="2" Grid.Column="5" Margin="0,5"  
+                                    HorizontalAlignment="Left" VerticalAlignment="Center" Width="100"
+                                    SelectedDate="{Binding SearchToDate}" />
+
+                        <Label      Grid.Row="3" Grid.Column="1" Margin="0,5" Content="From Amount" HorizontalAlignment="Left" />
+                        <TextBox x:Name="SearchFromAmount" 
+                                    Grid.Row="3" Grid.Column="2" Margin="0,5" 
+                                    HorizontalAlignment="Left" VerticalContentAlignment="Center" TextWrapping="Wrap" Width="100"
+                                    Text="{Binding SearchFromAmount}" />
+
+                        <Label      Grid.Row="3" Grid.Column="4" Margin="0,5" Content="To Amount" HorizontalAlignment="Left" />
+                        <TextBox x:Name="SearchToAmount" 
+                                    Grid.Row="3" Grid.Column="5" Margin="0,5"  
+                                    HorizontalAlignment="Left" VerticalContentAlignment="Center" TextWrapping="Wrap" Width="100"
+                                    Text="{Binding SearchToAmount}" />
+
+                        <Label      Grid.Row="4" Grid.Column="1" Margin="0,5" Content="Number" HorizontalAlignment="Left" />
+                        <ComboBox x:Name="SearchReference" 
+                                    Grid.Row="4" Grid.Column="2" Margin="0,5"  
+                                    IsEditable="True" HorizontalAlignment="Left" VerticalContentAlignment="Center" Width="200"
+                                    ItemsSource="{Binding References}" DisplayMemberPath="Text" 
+                                    SelectedItem="{Binding SearchReference}" />
+
+                        <Label      Grid.Row="4" Grid.Column="4" Margin="0,5" Content="Memo" HorizontalAlignment="Left" />
+                        <TextBox x:Name="SearchMemo" 
+                                    Grid.Row="4" Grid.Column="5" Margin="0,5" 
+                                    HorizontalAlignment="Left" VerticalContentAlignment="Center" TextWrapping="Wrap" Width="200"
+                                    Text="{Binding SearchMemo}" />
+
+                        <Label      Grid.Row="5" Grid.Column="1" Margin="0,5" Content="Category" HorizontalAlignment="Left" />
+                        <ComboBox x:Name="SearchCategory" 
+                                    Grid.Row="5" Grid.Column="2" Margin="0,5" 
+                                    ItemsSource="{Binding Source={StaticResource Subtransaction}, Path=Categories}" DisplayMemberPath="Text" 
+                                    IsEditable="True" HorizontalAlignment="Left" VerticalContentAlignment="Center" Width="200"
+                                    SelectedItem="{Binding SearchCategory}" />
+
+                        <Label      Grid.Row="5" Grid.Column="4" Margin="0,5" Content="Subcateory" HorizontalAlignment="Left" />
+                        <ComboBox x:Name="SearchClass" 
+                                    Grid.Row="5" Grid.Column="5" Margin="0,5" 
+                                    ItemsSource="{Binding Source={StaticResource Subtransaction}, Path=Subcategories}" DisplayMemberPath="Text" 
+                                    IsEditable="True" HorizontalAlignment="Left" VerticalContentAlignment="Center" Width="200"
+                                    SelectedItem="{Binding SearchSubcategory}" />
+
+                        <Label      Grid.Row="6" Grid.Column="1" Margin="0,5" Content="Class" HorizontalAlignment="Left" />
+                        <ComboBox x:Name="SearchSubcategory" 
+                                    Grid.Row="6" Grid.Column="2" Margin="0,5" 
+                                    ItemsSource="{Binding Source={StaticResource Subtransaction}, Path=Classes}" DisplayMemberPath="Text" 
+                                    IsEditable="True" HorizontalAlignment="Left" VerticalContentAlignment="Center" Width="200"
+                                    SelectedItem="{Binding SearchClass}" />
+
+                        <Label      Grid.Row="6" Grid.Column="4" Margin="0,5" Content="Subclass" HorizontalAlignment="Left" />
+                        <ComboBox x:Name="SearchSubclass" 
+                                    Grid.Row="6" Grid.Column="5" Margin="0,5" 
+                                    ItemsSource="{Binding Source={StaticResource Subtransaction}, Path=Subclasses}" DisplayMemberPath="Text" 
+                                    IsEditable="True" HorizontalAlignment="Left" VerticalContentAlignment="Center" Width="200"
+                                    SelectedItem="{Binding SearchSubclass}" />
+                    </Grid>
+                    <StackPanel Width="755">
+                        <DataGrid x:Name="SearchDataGrid" IsReadOnly="True"
+                            ItemsSource="{Binding SearchItems}"
+                            SelectedItem="{Binding SelectedSearchItem}"
+                            Height="200"
+                            SelectionUnit="FullRow"
+                            SelectionMode="Single"
+                            LoadingRow="SearchDataGrid_LoadingRow"
+                            ContextMenuOpening="SearchDataGrid_ContextMenuOpening"
+                            CanUserSortColumns="True"
+                            CanUserAddRows="False"
+                            CanUserDeleteRows="False"
+                            CanUserReorderColumns="False"
+                            CanUserResizeRows="False"
+                            RowDetailsVisibilityMode="Collapsed"
+                            AutoGenerateColumns="False"
+                            RowHeaderWidth ="0"
+                            MouseDoubleClick="SearchDataGrid_MouseDoubleClick"
+                            Margin="10,10,10,10"
+                                    >
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Ref" Binding="{Binding Reference}" Width="70" />
+                                <DataGridTextColumn Header="Date" Binding="{Binding Date, StringFormat=\{0:MM/dd/yyyy\}}" Width="70" />
+                                <DataGridTextColumn Header="Account" Binding="{Binding Account}" Width="70" />
+                                <DataGridTextColumn Header="Payee" Binding="{Binding Payee}" Width="200" />
+                                <DataGridTextColumn Header="Amount" Binding="{Binding Amount, StringFormat=\{0:N2\}}" IsReadOnly="True" Width="100" >
+                                    <DataGridTextColumn.CellStyle>
+                                        <Style>
+                                            <Setter Property="TextBlock.TextAlignment" Value="Right" />
+                                        </Style>
+                                    </DataGridTextColumn.CellStyle>
+                                </DataGridTextColumn>
+                                <DataGridTextColumn Header="TransMemo" Binding="{Binding TransMemo}" Width="220" />
+                                <DataGridTextColumn Header="SubMemo" Binding="{Binding SubMemo}" Width="220" />
+                                <DataGridTextColumn Header="Category" Binding="{Binding Category}" Width="200" />
+                                <DataGridTextColumn Header="Subcategory" Binding="{Binding Subcategory}" Width="200" />
+                                <DataGridTextColumn Header="Class" Binding="{Binding Class}" Width="200" />
+                                <DataGridTextColumn Header="Subclass" Binding="{Binding Subclass}" Width="200" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <Grid HorizontalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="250" />
+                                <ColumnDefinition Width="60" />
+                                <ColumnDefinition Width="60" />
+                                <ColumnDefinition Width="60" />
+                                <ColumnDefinition Width="250" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="5" />
+                                <RowDefinition Height="30" />
+                            </Grid.RowDefinitions>
+                            <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="0" >
+                                <Label Content="Count:" HorizontalAlignment="Left" />
+                                <Label MinWidth="50" Content="{Binding SearchItems.Count, TargetNullValue=0}" HorizontalAlignment="Left" />
+                            </StackPanel>
+                            <Button Grid.Row="1" Grid.Column="1" Content="Search" Command="{Binding PerformSearchCommand}" IsEnabled="{Binding IsSearchCriteria}" Width="50" Margin="0,5" />
+                            <Button Grid.Row="1" Grid.Column="2" Content="Clear" Click="SearchClear_Click" IsEnabled="{Binding IsSearchCriteria}" Width="50" Margin="0,5" />
+                            <Button Grid.Row="1" Grid.Column="3" Content="Close" Command="{Binding HideTransactionSearchCommand}" Width="50" Margin="0,5" />
+                            <StackPanel Grid.Row="1" Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Label Content="Total:" HorizontalAlignment="Left" />
+                                <Label MinWidth="50" Content="{Binding SearchTotal, StringFormat=\{0:N2\}, TargetNullValue=0}" HorizontalAlignment="Left" />
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Grid x:Name="LookupMaintenance" 
+              Visibility="{Binding LookupMaintenanceVisibility}">
+            <Grid Background="Black" Opacity="0.5"/>
+            <Border
+                MinWidth="50"
+                Background="LightYellow" 
+                BorderBrush="Black" 
+                BorderThickness="1" 
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+                <StackPanel Width="500" >
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="10" />
+                            <ColumnDefinition Width="60" />
+                            <ColumnDefinition Width="150" />
+                            <ColumnDefinition Width="200" />
+                            <ColumnDefinition Width="10" />
+                        </Grid.ColumnDefinitions>
+                        <Label Grid.Column="1" Content="Selection" VerticalAlignment="Center" />
+                        <ComboBox x:Name="MaintSelection" Grid.Column="2" VerticalAlignment="Center" 
+                                  ItemsSource="{Binding MaintSelections}" DisplayMemberPath="Name" 
+                                  SelectedItem="{Binding SelectedMaintItem}" />
+                        <StackPanel Grid.Column="3" Orientation="Horizontal" Margin="15,5" >
+                            <Button Content="Close" Command="{Binding HideMaintenanceCommand}" VerticalAlignment="Center" Margin="5,5" Width="60" />
+                        </StackPanel>
+                    </Grid>
+                    <StackPanel Margin="5,5,5,5" Height="500" >
+                        <DataGrid x:Name="MaintainCategory"
+                            Visibility="{Binding MaintCategoryVisibility}"
+                            ItemsSource="{Binding Source={StaticResource Subtransaction}, Path=Categories}"
+                            SelectedItem="{Binding MaintCategory, Converter={StaticResource NullToStringConverter}}"
+                            CanUserSortColumns="True"
+                            CanUserAddRows="True"
+                            CanUserDeleteRows="False"
+                            CanUserReorderColumns="False"
+                            CanUserResizeRows="False"
+                            AutoGenerateColumns="False"
+                            RowHeaderWidth="0"
+                            Height="500" >
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Text" Binding="{Binding Text}" Width="*" />
+                                <DataGridCheckBoxColumn Header="Tax" Binding="{Binding Tax}" Width="75" />
+                            </DataGrid.Columns>
+                            <DataGrid.RowValidationRules>
+                                <valid:CategoryValidation ValidationStep="CommittedValue" />
+                            </DataGrid.RowValidationRules>
+                            <DataGrid.InputBindings>
+                                <KeyBinding Key="Delete" Command="{Binding DeleteCategoryCommand}" />
+                            </DataGrid.InputBindings>
+                        </DataGrid>
+                        <DataGrid x:Name="MaintainSubcategory"
+                            Visibility="{Binding MaintSubcategoryVisibility}" 
+                            ItemsSource="{Binding Source={StaticResource Subtransaction}, Path=Subcategories}"
+                            SelectedItem="{Binding MaintSubcategory, Converter={StaticResource NullToStringConverter}}" 
+                            CanUserSortColumns="True"
+                            CanUserAddRows="True"
+                            CanUserDeleteRows="True"
+                            CanUserReorderColumns="False"
+                            CanUserResizeRows="False"
+                            AutoGenerateColumns="False"
+                            RowHeaderWidth="0"
+                            Height="500" >
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Text" Binding="{Binding Text}" Width="*" />
+                                <DataGridCheckBoxColumn Header="Tax" Binding="{Binding Tax}" Width="75" />
+                            </DataGrid.Columns>
+                            <DataGrid.RowValidationRules>
+                                <valid:SubcategoryValidation ValidationStep="CommittedValue" />
+                            </DataGrid.RowValidationRules>
+                            <DataGrid.InputBindings>
+                                <KeyBinding Key="Delete" Command="{Binding DeleteSubcategoryCommand}" />
+                            </DataGrid.InputBindings>
+                        </DataGrid>
+                        <DataGrid x:Name="MaintainClass"
+                            Visibility="{Binding MaintClassVisibility}" 
+                            ItemsSource="{Binding Source={StaticResource Subtransaction}, Path=Classes}"
+                            SelectedItem="{Binding MaintClass, Converter={StaticResource NullToStringConverter}}"
+                            CanUserSortColumns="True"
+                            CanUserAddRows="True"
+                            CanUserDeleteRows="True"
+                            CanUserReorderColumns="False"
+                            CanUserResizeRows="False"
+                            AutoGenerateColumns="False"
+                            RowHeaderWidth="0"
+                            Height="500" >
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Text" Binding="{Binding Text}" Width="*" />
+                            </DataGrid.Columns>
+                            <DataGrid.RowValidationRules>
+                                <valid:ClassValidation ValidationStep="CommittedValue" />
+                            </DataGrid.RowValidationRules>
+                            <DataGrid.InputBindings>
+                                <KeyBinding Key="Delete" Command="{Binding DeleteClassCommand}" />
+                            </DataGrid.InputBindings>
+                        </DataGrid>
+                        <DataGrid x:Name="MaintainSubclass"
+                            Visibility="{Binding MaintSubclassVisibility}" 
+                            ItemsSource="{Binding Source={StaticResource Subtransaction}, Path=Subclasses}"
+                            SelectedItem="{Binding MaintSubclass, Converter={StaticResource NullToStringConverter}}"
+                            CanUserSortColumns="True"
+                            CanUserAddRows="True"
+                            CanUserDeleteRows="True"
+                            CanUserReorderColumns="False"
+                            CanUserResizeRows="False"
+                            AutoGenerateColumns="False"
+                            RowHeaderWidth="0"
+                            Height="500" >
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Text" Binding="{Binding Text}" Width="*" />
+                            </DataGrid.Columns>
+                            <DataGrid.RowValidationRules>
+                                <valid:SubclassValidation ValidationStep="CommittedValue" />
+                            </DataGrid.RowValidationRules>
+                            <DataGrid.InputBindings>
+                                <KeyBinding Key="Delete" Command="{Binding DeleteSubclassCommand}" />
+                            </DataGrid.InputBindings>
+                        </DataGrid>
+                        <DataGrid x:Name="MaintainPayee"
+                            Visibility="{Binding MaintPayeeVisibility}" 
+                            ItemsSource="{Binding Source={StaticResource BankTransaction}, Path=Payees}"
+                            SelectedItem="{Binding MaintPayee, Converter={StaticResource NullToStringConverter}}"
+                            CanUserSortColumns="True"
+                            CanUserAddRows="True"
+                            CanUserDeleteRows="True"
+                            CanUserReorderColumns="False"
+                            CanUserResizeRows="False"
+                            AutoGenerateColumns="False"
+                            RowHeaderWidth="0"
+                            Height="500" >
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*" />
+                                <DataGridTextColumn Header="Date" Binding="{Binding DateLastUsed, StringFormat=\{0:MM/dd/yyyy\}}" Width="80" />
+                            </DataGrid.Columns>
+                            <DataGrid.RowValidationRules>
+                                <valid:PayeeValidation ValidationStep="CommittedValue"/>
+                            </DataGrid.RowValidationRules>
+                            <DataGrid.InputBindings>
+                                <KeyBinding Key="Delete" Command="{Binding DeletePayeeCommand}" />
+                            </DataGrid.InputBindings>
+                        </DataGrid>
+                        <DataGrid x:Name="MaintInstitution"
+                            Visibility="{Binding MaintInstitutionVisibility}" 
+                            ItemsSource="{Binding Source={StaticResource Account}, Path=Institutions}"
+                            SelectedItem="{Binding MaintInstitution, Converter={StaticResource NullToStringConverter}}"
+                            CanUserSortColumns="True"
+                            CanUserAddRows="False"
+                            CanUserDeleteRows="True"
+                            CanUserReorderColumns="False"
+                            CanUserResizeRows="False"
+                            AutoGenerateColumns="False"
+                            RowHeaderWidth="0"
+                            Height="500" >
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="200" />
+                                <DataGridTextColumn Header="URL" Binding="{Binding URL}" Width="200" />
+                                <DataGridTextColumn Header="Email" Binding="{Binding Email}" Width="200" />
+                                <DataGridTextColumn Header="Phone" Binding="{Binding Phone}" Width="110" />
+                                <DataGridTextColumn Header="Street" Binding="{Binding Street}" Width="200" />
+                                <DataGridTextColumn Header="City" Binding="{Binding City}" Width="150" />
+                                <DataGridTextColumn Header="State" Binding="{Binding State}" Width="30" />
+                                <DataGridTextColumn Header="Zip" Binding="{Binding Zip}" Width="80" />
+                            </DataGrid.Columns>
+                            <DataGrid.RowValidationRules>
+                                <valid:InstitutionValidation ValidationStep="UpdatedValue"/>
+                                <valid:InstitutionValidation ValidationStep="CommittedValue"/>
+                            </DataGrid.RowValidationRules>
+                            <DataGrid.InputBindings>
+                                <KeyBinding Key="Delete" Command="{Binding DeleteInstitutionCommand}" />
+                            </DataGrid.InputBindings>
+                        </DataGrid>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Grid x:Name="LookupReplacement" 
+              Visibility="{Binding LookupReplacementVisibility}">
+            <Grid Background="Black" Opacity="0.5"/>
+            <Border
+                MinWidth="50"
+                Background="LightYellow" 
+                BorderBrush="Black" 
+                BorderThickness="1" 
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+                <StackPanel Width="250" >
+                    <TextBlock Text="{Binding ReplacementText}" TextWrapping="Wrap" Margin="5,5" />
+                    <ComboBox x:Name="ReplaceCategory" Margin="5,5" 
+                              ItemsSource="{Binding ReplacementCategories}" DisplayMemberPath="Text"  
+                              SelectedItem="{Binding ReplacementCategory}" 
+                              Visibility="{Binding ReplacementCategoryVisibility}" />
+                    <ComboBox x:Name="ReplaceSubcategory" Margin="5,5" 
+                              ItemsSource="{Binding ReplacementSubcategories}" DisplayMemberPath="Text" 
+                              SelectedItem="{Binding ReplacementSubcategory}" 
+                              Visibility="{Binding ReplacementSubcategoryVisibility}" />
+                    <ComboBox x:Name="ReplaceClass" Margin="5,5" 
+                              ItemsSource="{Binding ReplacementClasses}" DisplayMemberPath="Text" 
+                              SelectedItem="{Binding ReplacementClass}" 
+                              Visibility="{Binding ReplacementClassVisibility}" />
+                    <ComboBox x:Name="ReplaceSubclass" Margin="5,5" 
+                              ItemsSource="{Binding ReplacementSubclasses}" DisplayMemberPath="Text" 
+                              SelectedItem="{Binding ReplacementSubclass}" 
+                              Visibility="{Binding ReplacementSubclassVisibility}" />
+                    <StackPanel Visibility="Visible" Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button Content="OK" Command="{Binding ReplacementResponseCommand}" IsEnabled="{Binding IsReplacementSelected}" Width="50" Margin="5,5" />
+                        <Button Content="Cancel" Command="{Binding ReplacementCancelCommand}" Width="50" Margin="5,5" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Grid x:Name="BusyPanel" 
+              Visibility="{Binding BusyPanelVisibility}">
+            <Grid Background="Black" Opacity="0.5"/>
+            <Border
+                MinWidth="50" MinHeight="50"
+                Background="LightSeaGreen" 
+                BorderBrush="Black" 
+                BorderThickness="1" 
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+                <StackPanel Width="280" Margin="5,5,5,5" VerticalAlignment="Center" Background="LightGreen" >
+                    <TextBox x:Name="BusyTitle" TextWrapping="Wrap" MinHeight="16" HorizontalAlignment="Center" 
+                             Background="Transparent" BorderBrush="Transparent" 
+                             Text="{Binding BusyPanelTitle}" />
+                    <ProgressBar Visibility="Collapsed" Value="{Binding BusyProgressValue}" Minimum="{Binding BusyProgressMinimum}" Maximum="{Binding BusyProgressMaximum}" Height="20" />
+                    <TextBox Visibility="Collapsed" Text="{Binding BusyProgressText}" HorizontalAlignment="Center" TextAlignment="Center" Width="32" />
+                    <Button Visibility="Collapsed" Content="Cancel" Command="{Binding BusyCancelCommand}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="38"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <uctl:MessagePanel x:Name="MessagePanel" Grid.Row="2" MessageResponse="{Binding MainMessageResponse, Mode=OneWayToSource}" />
+
+    </Grid>
+</Window>

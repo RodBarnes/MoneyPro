@@ -1,0 +1,42 @@
+﻿@page "/tags"
+
+@using MoneyPro.Services
+@inject TagService TagService
+
+<h3>Tags</h3>
+
+@if (list == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Last used</th>
+                <th>Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var tag in list)
+            {
+                <tr>
+                    <td>@tag.Name</td>
+                    <td>@tag.DateLastUsed.ToShortDateString()</td>
+                    <td>@tag.ReferenceCount</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    Data.Tag[] list;
+
+    protected override async Task OnInitializedAsync()
+    {
+        list = await TagService.GetTagAsync();
+    }
+}

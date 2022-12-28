@@ -1,0 +1,7 @@
+Add subtransction with XferAccount -- Create xfer subtransaction and xfer transaction.
+Remove xfer transaction -- Remove host subtransaction; remove host transaction if no more subtransactions.
+Remove host subtransaction -- Remove xfer subtransaction; remove xfer transaction if no more subtransactions.
+Remove xfer subtransaction if more than one subtransctionin xfer transaction -- Remove host subtransaction; remove host transaction if no more subtransactions.
+Change category from Transfer on host sub -- Remove xfer subtransaction; remove xfer transaction if no more subtransactions.
+Change category from Transfer on xfer sub -- Remove host subtransaction; remove host transaction if no more subtransactions.
+Select XferAccount on existing -- Create xfer subtransaction and xfer transaction.

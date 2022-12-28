@@ -1,0 +1,7 @@
+﻿CREATE TABLE [dbo].[Payee]
+(
+    PayeeId INT IDENTITY (1, 1) NOT NULL,
+    [Name] NVARCHAR(50) NOT NULL UNIQUE, 
+    [DateLastUsed] DATETIME2 NULL
+    PRIMARY KEY CLUSTERED ([PayeeId] ASC)
+)
